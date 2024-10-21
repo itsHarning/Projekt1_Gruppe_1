@@ -3,31 +3,35 @@ import java.time.format.DateTimeFormatter;
 
 public class Booking {
     String customerName;
-    int amountOfBookedTime;
-    LocalDateTime startingMinutes;
+    int bookedMinutes;
+    LocalDateTime startingTime;
     LocalDateTime endTime;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd HH:mm");
-    //receipt from receipt class
+    Receipt receipt = new Receipt(); // denne klasse mangler funktionalitet
 
-    Booking(String name, int amountOfBookedMinutes, String startingTime){
+    Booking(String name, int bookedMinutes, String startingTime){
         customerName = name;
-        this.amountOfBookedTime = amountOfBookedMinutes;
-        this.startingMinutes = LocalDateTime.parse(startingTime, formatter);
+        this.bookedMinutes = bookedMinutes;
+        this.startingTime = LocalDateTime.parse(startingTime, formatter); // konvertere fra en String til LocalDateTime
+        endTime = this.startingTime.plusMinutes(bookedMinutes); // ligger den bookede mængde minutter til start tiden for at finde slut
     }
 
     void payBill(){
 
     }
 
-    LocalDateTime endTime(){
-        return startingMinutes.plusMinutes(amountOfBookedTime);
-    }
+// kommenteret ud da den ummidelbart ikke er nødvendig
+    // tager den givne start tider og ligger den mængde tid bookingen tager til for at udregne slut tid
+    // LocalDateTime endTime(){
+    //     return startingTime.plusMinutes(amountOfBookedMinutes);
+    // }
 
     void timeTaken(){
 
     }
 
+    // standard toString metode, giver muligvis mening senere at lave en reel print metode
     public String toString() {
-        return customerName+" har tid "+ startingMinutes +" til "+endTime();
+        return customerName+" har tid "+ startingTime +" til "+endTime;
     }
 }
