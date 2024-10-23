@@ -17,23 +17,55 @@ public class BookingList extends ArrayList<Booking>
     public boolean add(Booking booking)
     {
         // Aborts if not valid timeslot.
-        if (!isShopOpen(booking.startingTime)) return false;
+        if (!isShopOpen(booking.startingTime) || LocalDateTime.now().plusYears(1).isBefore(booking.startingTime))
+        {
+            return false;
+        }
 
+        // fetch bookings occurring on the same date.
         ArrayList<Booking> list = getBookingsFor(booking.startingTime);
 
+        // Check if overlapping existing bookings
         for (Booking b : list)
         {
-            // TODO: implement proper 'Booking's overlap-function
-            if (booking.startingTime.getHour() == b.startingTime.getHour())
+            if (booking.compareTo(b) == 0)
             {
                 return false;
             }
         }
 
-        super.add(booking);
-        // TODO: Sort list of bookings.
+        super.add(booking); // Add to booking-list
+        this.sort(null); // Sort list to chronological order.
 
         return true;
+    }
+
+    // returns the booking that overlaps given time, or null if none exists.
+    public Booking getBooking(LocalDateTime date)
+    {
+        for (Booking booking : this)
+        {
+            if (booking.startingTime.isBefore(date) && booking.endTime.isAfter(date))
+            {
+                return booking;
+            }
+        }
+        return null;
+    }
+
+    // returns the next booking for a given customer, or null if none exists within a year.
+    public Booking getBooking(String customerName)
+    {
+        BookingList list = getBookingsFor(LocalDateTime.now(), LocalDateTime.now().plusYears(1));
+
+        for (Booking booking : list)
+        {
+            if (booking.customerName.equals(customerName))
+            {
+                return booking;
+            }
+        }
+        return null;
     }
 
     // Checks if time coincides with weekend, vacation or closing hours.
@@ -63,11 +95,13 @@ public class BookingList extends ArrayList<Booking>
     // Returns the all available times in hourly increments or null if none exists for the date.
     public LocalDateTime[] timesAt(LocalDate date)
     {
+        // Quick return if date is not a workday.
         if (!isShopOpen(date)) return null; // TODO: show error-screen
 
         ArrayList<Booking> list = getBookingsFor(date);
 
-        if (list.size() < 6 || list.getFirst().startingTime.getHour() > 8) return null;
+        // TODO: Fix to quick return if day definitely fully booked.
+        if (list.size() > 6) return new LocalDateTime[0];
 
         for (int time = 8; time < 16; time++)
         {
@@ -147,6 +181,10 @@ public class BookingList extends ArrayList<Booking>
             {
                 list.add(booking);
             }
+            else if (list.size() > 0)
+            { // OBS: this depends on the archive being sorted, breaks when past date.
+                break;
+            }
         }
 
         return list;
@@ -175,6 +213,10 @@ public class BookingList extends ArrayList<Booking>
              && booking.startingTime.toLocalDate().isBefore(end))
             {
                 list.add(booking);
+            }
+            else if (list.size() > 0)
+            { // OBS: this depends on the archive being sorted, breaks when past date.
+                break;
             }
         }
 
