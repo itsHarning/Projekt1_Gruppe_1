@@ -100,43 +100,17 @@ public class BookingList extends ArrayList<Booking>
 
         ArrayList<Booking> list = getBookingsFor(date);
 
-        // TODO: Fix to quick return if day definitely fully booked.
-        if (list.size() > 6) return new LocalDateTime[0];
+        // TODO: All of this
 
-        for (int time = 8; time < 16; time++)
-        {
-            for (Booking booking : list)
-            {
-                // TODO: implement proper 'Booking's overlap-function
-                if (hasTimeAt(date.atTime(time,0)))
-                {
-                    continue;
-                }
-            }
-        }
-
-        // TODO: show error-screen
         return null;
     }
 
     // Checks given time whether it is available for a new booking,
     // Returns same time if available.
     // Otherwise, returns the earliest available timeslot or null if none exists for the date.
-    public boolean hasTimeAt(LocalDateTime time)
+    public LocalDateTime LocalDateTime(LocalDateTime time)
     {
-        LocalDateTime earliest = hasTimeAt(time.toLocalDate());
-        if (earliest == null || time.isBefore(earliest)) return earliest;
-
-        ArrayList<Booking> list = getBookingsFor(time);
-
-        for (Booking booking : list)
-        {
-            // TODO: implement proper 'Booking's overlap-function
-            if (Math.abs(time.getHour()-booking.startingTime.getHour()) < 1)
-            {
-                return null;
-            }
-        }
+        LocalDateTime[] earliest = timesAt(time.toLocalDate());
 
         return time;
     }
