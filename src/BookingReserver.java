@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class Bookingsystem {private static boolean[] bookings = new boolean[9];  // 8 timer fra 10 til 17 (fordi behandlingen tager en time)
+public class BookingReserver {private static boolean[] bookings = new boolean[9];  // 8 hours from the timespan 10 -17
 
     public static void main(String[] args) {
         arrangeBooking();
