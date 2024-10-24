@@ -17,10 +17,15 @@ public class BookingReserver {private static boolean[] bookings = new boolean[9]
             System.out.print("Indtast venligst Tlf. nummer");
             String tlfNummer = scanner.nextLine();
 
-            System.out.println("Indtast venligst hvilken tidsperiode mellem (10-17).");
-            int tid = scanner.nextInt();
+            System.out.println("Indtast venligst hvilken dato");
+            String dato = scanner.nextLine();
 
-            Booking booking = new Booking(navn, tlfNummer, tid);
+            System.out.println("Indtast venligst hvilken tidsperiode mellem (10-17).");
+            String tid = scanner.nextLine();
+
+
+
+            Booking booking = new Booking(navn, tlfNummer, dato, tid);
 
 
 
