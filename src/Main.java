@@ -9,7 +9,7 @@ public class Main {
         int shave = 15;
         int dye = 30;
         // formatting of the date/time can easily be changes
-        Booking booking = new Booking("Test Booking",standardCut+longHair,"2024 10 21 10:00");
+        Booking booking = new Booking("Test Booking","46460046","2024 10 21", "10:00");
 
         System.out.println(booking);
     }
