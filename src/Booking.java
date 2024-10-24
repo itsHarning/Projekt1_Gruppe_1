@@ -38,7 +38,6 @@ public class Booking implements Comparable<Booking> {
 
     // Checks time between this and another Booking.
     // Returns 0 if overlapping.
-    @Override
     public int compareTo(Booking other)
     {
         // First compare the day of the date.
