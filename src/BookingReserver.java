@@ -20,7 +20,7 @@ public class BookingReserver {private static boolean[] bookings = new boolean[9]
             System.out.println("Indtast venligst hvilken tidsperiode mellem (10-17).");
             int tid = scanner.nextInt();
 
-            Booking booking = new Booking(navn, tlfNummer, tid);
+           // Booking booking = new Booking(navn, tlfNummer, tid);
 
 
 
