@@ -1,3 +1,4 @@
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -68,6 +69,21 @@ public class BookingList extends ArrayList<Booking>
         return null;
     }
 
+    // returns the next booking for a given phone number, or null if none exists within a year.
+    public Booking getBookingTlf(String phoneNumber)
+    {
+        BookingList list = getBookingsFor(LocalDateTime.now(), LocalDateTime.now().plusYears(1));
+
+        for (Booking booking : list)
+        {
+            if (booking.customerName.equals(phoneNumber))
+            {
+                return booking;
+            }
+        }
+        return null;
+    }
+
     // Checks if time coincides with weekend, vacation or closing hours.
     public boolean isShopOpen(LocalDateTime time)
     {
@@ -108,8 +124,11 @@ public class BookingList extends ArrayList<Booking>
     // Checks given time whether it is available for a new booking,
     // Returns same time if available.
     // Otherwise, returns the earliest available timeslot or null if none exists for the date.
-    public LocalDateTime LocalDateTime(LocalDateTime time)
+    public LocalDateTime hasTimeAt(LocalDateTime time)
     {
+        // Quick return if date is not a workday.
+        if (!isShopOpen(time)) return null; // TODO: show error-screen
+
         LocalDateTime[] earliest = timesAt(time.toLocalDate());
 
         return time;
@@ -184,7 +203,7 @@ public class BookingList extends ArrayList<Booking>
         for (Booking booking : this)
         {
             if (booking.startingTime.toLocalDate().isAfter(start)
-             && booking.startingTime.toLocalDate().isBefore(end))
+                    && booking.startingTime.toLocalDate().isBefore(end))
             {
                 list.add(booking);
             }
@@ -202,6 +221,61 @@ public class BookingList extends ArrayList<Booking>
     public BookingList getBookingsFor(LocalDateTime startDate, LocalDateTime endDate)
     {
         return getBookingsFor(startDate.toLocalDate(), endDate.toLocalDate());
+    }
+
+    public String printDay(LocalDate date)
+    {
+        StringBuilder string = new StringBuilder();
+
+        string.append(date.format(DateTimeFormatter.ofPattern("dd/MM yyyy")));
+        string.append("\n");
+
+        if (isShopOpen(date))
+        {
+            string.append("\n");
+            switch (date.getDayOfWeek())
+            {
+                case SATURDAY, SUNDAY: string.append("WEEKEND"); break;
+                default: string.append("VACATION");
+            }
+
+            return string.toString();
+        }
+
+        BookingList list = getBookingsFor(date);
+        String[] timeSlots = new String[16];
+
+        int time;
+        for (int i = 0; i < 16; i++)
+        {
+            time = 8 + i/2;
+            string.append("\n" + time + ":");
+            if (i%2 == 0)
+            {
+                string.append("00");
+            }
+            else
+            {
+                string.append("30");
+            }
+            string.append("\t");
+
+            for (Booking booking : list)
+            {
+                if (booking.startingTime.getHour() == time) // TODO: make account for minutes.
+                {
+                    string.append(booking.customerName);
+                    break;
+                }
+            }
+
+            timeSlots[i] = string.toString();
+            // TODO: clear StringBuilder.
+        }
+
+
+
+        return string.toString();
     }
 
     public String toString()
