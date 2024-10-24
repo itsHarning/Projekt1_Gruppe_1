@@ -11,10 +11,14 @@ public class BookingReserver {private static boolean[] bookings = new boolean[9]
         System.out.println("vælg venligst en tid indenfor tidsperioden kl. 10-17.");
 
         try {
+            System.out.println("ask date");
+            String date = scanner.nextLine();
+
             System.out.print("Indtast venligst navn");
-            String navn = scanner.nextLine();
+            String name = scanner.nextLine();
 
             System.out.print("Indtast venligst Tlf. nummer");
+<<<<<<< HEAD
             String tlfNummer = scanner.nextLine();
 
             System.out.println("Indtast venligst hvilken tidsperiode mellem (10-17).");
@@ -43,6 +47,15 @@ public class BookingReserver {private static boolean[] bookings = new boolean[9]
                 bookings[tid - 10] = true;
                 System.out.println("Du har booket tidsperioden "+tid+" ");
             }
+=======
+            String phoneNum = scanner.nextLine();
+
+            System.out.println("Indtast venligst hvilken tidsperiode mellem (10-17).");
+            String time = scanner.nextLine();
+
+            Booking booking = new Booking(name, phoneNum, date, time);
+
+>>>>>>> origin/main
         } catch (Exception e) {  // Hvis der opstår en fejl (f.eks. ugyldigt input)
             System.out.println(e.getMessage());
             scanner.nextLine();  // Ryd scanner-bufferen

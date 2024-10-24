@@ -1,32 +1,31 @@
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class Booking implements Comparable<Booking> {
     String customerName;
     int bookedMinutes;
-    LocalDateTime startingTime;
-    LocalDateTime endTime;
+    LocalDate bookedDate;
+    LocalTime startingTime;
+    LocalTime endTime;
     // TODO: not so much todo, just suggesting endtime is 1 minute before proper end time
     //  so that starting where another booking ends doesn't flag as overlapping.
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd HH:mm");
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy MM dd");
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
     Receipt receipt = new Receipt(); // receipt class doesn't have any function yet
 
-    Booking(String name, int bookedMinutes, String startingTime){
+    Booking(String name, String phoneNumber, String bookedDate, String startingTime){
         customerName = name;
         this.bookedMinutes = bookedMinutes;
-        this.startingTime = LocalDateTime.parse(startingTime, formatter); // converts from a string to LocalDateTime
+        this.startingTime = LocalTime.parse(startingTime, timeFormatter); // converts from a string to LocalDateTime
+        this.bookedDate = LocalDate.parse(bookedDate, dateFormatter);
         endTime = this.startingTime.plusMinutes(bookedMinutes); // adds the booked minutes to the start time
     }
 
     void payBill(){
 
     }
-
-// commented out, as the method is probably not needed
-    // adds the booked amount of minutes to the start time to calculate the end time
-    // LocalDateTime endTime(){
-    //     return startingTime.plusMinutes(amountOfBookedMinutes);
-    // }
 
     void timeTaken(){
 
@@ -39,11 +38,10 @@ public class Booking implements Comparable<Booking> {
 
     // Checks time between this and another Booking.
     // Returns 0 if overlapping.
-    @Override
     public int compareTo(Booking other)
     {
         // First compare the day of the date.
-        int disparity = this.startingTime.getDayOfYear() - other.endTime.getDayOfYear();
+        int disparity = this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
 
         // Return if not on the same day
         if (disparity != 0) return disparity;
@@ -68,23 +66,23 @@ public class Booking implements Comparable<Booking> {
     public boolean isAfter(Booking other)
     {
         // First check if same date.
-        if (this.startingTime.getDayOfYear() == other.endTime.getDayOfYear() )
+        if (this.bookedDate.getDayOfYear() == other.bookedDate.getDayOfYear() )
         {
             // TODO: Make account for minutes.
             return 0 < this.startingTime.getHour() - other.endTime.getHour();
         }
-        return 0 < this.startingTime.getDayOfYear() - other.endTime.getDayOfYear();
+        return 0 < this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
     }
 
     // Checks if this Booking is scheduled before another
     public boolean isBefore(Booking other)
     {
         // First check if same date.
-        if (this.endTime.getDayOfYear() == other.startingTime.getDayOfYear() )
+        if (this.bookedDate.getDayOfYear() == other.bookedDate.getDayOfYear() )
         {
             // TODO: Make account for minutes.
             return 0 > this.endTime.getHour() - other.startingTime.getHour();
         }
-        return 0 > this.endTime.getDayOfYear() - other.startingTime.getDayOfYear();
+        return 0 > this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
     }
 }
