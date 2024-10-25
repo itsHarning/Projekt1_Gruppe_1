@@ -31,35 +31,41 @@ public class Booking implements Comparable<Booking> {
 
     }
 
-    // standard toString method, it might make sense later on to make a seperate print method
+    // standard toString method, it might make sense later on to make a separate print method
     public String toString() {
-        return customerName+" har tid "+ startingTime +" til "+endTime;
+        return "navn: "+customerName+"\ttlf: "+phoneNumber+"\n tid:"+ startingTime +" til "+endTime;
+    }
+
+    public void printBooking() {
+        System.out.println("navn: "+customerName+"\ttlf: "+phoneNumber);
+        formatterString="yyyy-MM-dd";
+        System.out.print("dato: "+startingTime);
+        formatterString="HH:mm";
+        System.out.println("\ttid: "+startingTime+"-"+endTime);
     }
 
     // Checks time between this and another Booking.
     // Returns 0 if overlapping.
-    public int compareTo(Booking other)
-    {
+    public int compareTo(Booking other) {
         // First compare the day of the date.
-        int disparity = this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
+        int difference = this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
 
         // Return if not on the same day
-        if (disparity != 0) return disparity;
+        if (difference != 0) return difference;
 
-        // Compare time of day TODO: Make account for minutes.
         // Note: in two statements to account for duration.
         // Whether returning POSITIVE or NEGATIVE difference is IMPORTANT for sorting function!
         if (this.isAfterDate(other)) // if after, return POSITIVE time between bookings.
         {
-            return this.startingTime.getHour() - other.endTime.getHour();
+            return (this.startingTime.getHour() + this.startingTime.getMinute()) - (other.endTime.getHour() + other.endTime.getMinute());
         }
         else if (this.isBeforeDate(other)) // if before, return NEGATIVE time between bookings.
         {
-            return this.endTime.getHour() - other.startingTime.getHour();
+            return (this.endTime.getHour() + this.endTime.getMinute()) - (other.startingTime.getHour()+ this.startingTime.getMinute());
         }
 
         // If neither before nor after, return 0 to indicate overlap.
-        return disparity;
+        return difference;
     }
 
     // Checks if this Booking is scheduled after another
@@ -67,7 +73,6 @@ public class Booking implements Comparable<Booking> {
         // First check if same date.
         if (this.bookedDate.getDayOfYear() == other.bookedDate.getDayOfYear() )
         {
-            // TODO: Make account for minutes.
             return 0 < (this.startingTime.getHour() + this.startingTime.getMinute()) - (other.endTime.getHour() + other.endTime.getMinute());
         }
         return 0 < this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
@@ -78,16 +83,17 @@ public class Booking implements Comparable<Booking> {
         // First check if same date.
         if (this.bookedDate.getDayOfYear() == other.bookedDate.getDayOfYear() )
         {
-            // TODO: Make account for minutes.
             return 0 > (this.endTime.getHour() + this.endTime.getMinute()) - (other.startingTime.getHour()+ this.startingTime.getMinute());
         }
         return 0 > this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
     }
 
+    // checks if the booking is before a given date
     public boolean isBeforeDate(LocalDateTime date){
-        return this.startingTime.isBefore(date);
+        return this.endTime.isBefore(date);
     }
 
+    // checks if the booking is after a given date
     public boolean isAfterDate(LocalDateTime date){
         return this.startingTime.isAfter(date);
     }
