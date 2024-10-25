@@ -76,7 +76,7 @@ public class BookingList extends ArrayList<Booking>
 
         for (Booking booking : list) // TODO: Add PhoneNumber var in Booking.
         {
-            if (booking.customerName.equals(phoneNumber))
+            if (booking.phoneNumber.equals(phoneNumber))
             {
                 return booking;
             }
@@ -227,10 +227,10 @@ public class BookingList extends ArrayList<Booking>
     {
         StringBuilder string = new StringBuilder();
 
-        string.append(date.format(DateTimeFormatter.ofPattern("dd/MM yyyy")));
+        string.append(date.format(DateTimeFormatter.ofPattern("dd/MM")));
         string.append("\n");
 
-        if (isShopOpen(date))
+        if (!isShopOpen(date))
         {
             string.append("\n");
             switch (date.getDayOfWeek())
