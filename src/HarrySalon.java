@@ -8,6 +8,9 @@ public class HarrySalon {
     static String[] extraOptions = {"Log Ud","Se Økonomi", "gør noget andet"};
     static String password = "HairyHarry";
     static boolean loggedIn = false;
+
+    static BookingList bookingList = new BookingList();
+
     public static void main(String[] args) {
         mainMenu();
     }
@@ -37,7 +40,7 @@ public class HarrySalon {
             try {
                 switch (sc.nextInt()) {
                     case 1:
-                        BookingReserver.arrangeBooking();
+                        BookingReserver.arrangeBooking(bookingList);
                         return;
                     case 2:
                         System.out.println("du sletter en tid");
