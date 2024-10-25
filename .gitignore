@@ -28,6 +28,7 @@ bin/
 ### Mac OS ###
 .DS_Store
 /.idea/
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 /.idea/
 =======
@@ -36,3 +37,5 @@ bin/
 /.idea/
 >>>>>>> origin/main
 >>>>>>> origin/main
+=======
+>>>>>>> Stashed changes

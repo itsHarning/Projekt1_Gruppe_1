@@ -8,16 +8,16 @@ public class BookingReserver {private static boolean[] bookings = new boolean[9]
 
     public static void arrangeBooking() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("vælg venligst en tid indenfor tidsperioden kl. 10-17.");
+        System.out.println("please choose a timeperiod between 10-17);
 
         try {
             System.out.println("ask date");
             String date = scanner.nextLine();
 
-            System.out.print("Indtast venligst navn");
+            System.out.print("ask name");
             String name = scanner.nextLine();
 
-            System.out.print("Indtast venligst Tlf. nummer");
+            System.out.print("ask phone number.");
 <<<<<<< HEAD
             String tlfNummer = scanner.nextLine();
 
