@@ -5,13 +5,10 @@ import java.time.LocalDateTime;
 
 public class BookingList extends ArrayList<Booking>
 {
-    private final ArrayList<LocalDate> vacationDays;
+    private static final ArrayList<LocalDate> vacationDays = new ArrayList<>();
 
     // Constructor starts empty
-    public BookingList()
-    {
-        this.vacationDays = new ArrayList<>();
-    }
+    public BookingList(){}
 
     // Adds booking to list if it does not coincide with other bookings or time off.
     @Override // returns false if booking was NOT added!
@@ -85,7 +82,7 @@ public class BookingList extends ArrayList<Booking>
     }
 
     // Checks if time coincides with weekend, vacation or closing hours.
-    public boolean isShopOpen(LocalDateTime time)
+    public static boolean isShopOpen(LocalDateTime time)
     {
         if (time.getDayOfWeek().getValue() > 5) return false;
         if (time.getHour() < 8 || time.getHour() > 16) return false;
@@ -101,7 +98,7 @@ public class BookingList extends ArrayList<Booking>
     }
 
     // Accounts for arguments of 'LocalDateTime'
-    public boolean isShopOpen(LocalDate day)
+    public static boolean isShopOpen(LocalDate day)
     {
         // checks at hard set time, where shop is open if not having the day off.
         return isShopOpen(day.atTime(12,0));
