@@ -5,21 +5,21 @@ import java.time.format.DateTimeFormatter;
 
 public class Booking implements Comparable<Booking> {
     String customerName;
+    String phoneNumber;
     int bookedMinutes;
     LocalDate bookedDate;
     LocalTime startingTime;
     LocalTime endTime;
     // TODO: not so much todo, just suggesting endtime is 1 minute before proper end time
     //  so that starting where another booking ends doesn't flag as overlapping.
-    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy MM dd");
-    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    DateTimeFormatter Formatter = DateTimeFormatter.ofPattern("yyyy MM dd HH:mm");
     Receipt receipt = new Receipt(); // receipt class doesn't have any function yet
 
-    Booking(String name, String phoneNumber, String bookedDate, String startingTime){
+    Booking(String name, String phoneNum, String startingTime){
         customerName = name;
+        phoneNumber = phoneNum;
         this.bookedMinutes = bookedMinutes;
-        this.startingTime = LocalTime.parse(startingTime, timeFormatter); // converts from a string to LocalDateTime
-        this.bookedDate = LocalDate.parse(bookedDate, dateFormatter);
+        this.startingTime = LocalTime.parse(startingTime, Formatter); // converts from a string to LocalDateTime
         endTime = this.startingTime.plusMinutes(bookedMinutes); // adds the booked minutes to the start time
     }
 
