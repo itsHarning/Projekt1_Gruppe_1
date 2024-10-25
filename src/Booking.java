@@ -33,15 +33,16 @@ public class Booking implements Comparable<Booking> {
 
     // standard toString method, it might make sense later on to make a separate print method
     public String toString() {
-        return "navn: "+customerName+"\ttlf: "+phoneNumber+"\n tid:"+ startingTime +" til "+endTime;
+        return "navn: "+customerName+"\ttlf: "+phoneNumber+"\ntid: "+ startingTime +" til "+endTime;
     }
 
     public void printBooking() {
         System.out.println("navn: "+customerName+"\ttlf: "+phoneNumber);
-        formatterString="yyyy-MM-dd";
+        Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         System.out.print("dato: "+startingTime);
-        formatterString="HH:mm";
-        System.out.println("\ttid: "+startingTime+"-"+endTime);
+        Formatter = DateTimeFormatter.ofPattern("HH:mm");
+        System.out.println("\ttid: "+startingTime.format(Formatter)+"-"+(endTime.plusMinutes(1)).format(Formatter));
+        Formatter = DateTimeFormatter.ofPattern(formatterString);
     }
 
     // Checks time between this and another Booking.
