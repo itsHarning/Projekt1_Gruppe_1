@@ -1,19 +1,18 @@
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class Booking implements Comparable<Booking> {
     String customerName;
     String phoneNumber;
-    int bookedMinutes;
+    int bookedMinutes=60;
     LocalDate bookedDate;
     LocalDateTime startingTime;
     LocalDateTime endTime;
     // TODO: not so much todo, just suggesting endtime is 1 minute before proper end time
     //  so that starting where another booking ends doesn't flag as overlapping.
-    DateTimeFormatter Formatter = DateTimeFormatter.ofPattern("yyyy MM dd HH:mm");
+    static String formatterString = "yyyy MM dd HH:mm";
+    DateTimeFormatter Formatter = DateTimeFormatter.ofPattern(formatterString);
     Receipt receipt = new Receipt(); // receipt class doesn't have any function yet
 
     Booking(String name, String phoneNum, String startingTime){
@@ -21,7 +20,7 @@ public class Booking implements Comparable<Booking> {
         phoneNumber = phoneNum;
         this.bookedMinutes = bookedMinutes;
         this.startingTime = LocalDateTime.parse(startingTime, Formatter); // converts from a string to LocalDateTime
-        endTime = this.startingTime.plusMinutes(bookedMinutes); // adds the booked minutes to the start time
+        endTime = this.startingTime.plusMinutes(bookedMinutes-1); // adds the booked minutes to the start time
     }
 
     void payBill(){
@@ -39,7 +38,7 @@ public class Booking implements Comparable<Booking> {
 
     // Checks time between this and another Booking.
     // Returns 0 if overlapping.
-    public int compareTo(Booking other)
+    public int compareToDate(Booking other)
     {
         // First compare the day of the date.
         int disparity = this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
@@ -69,7 +68,7 @@ public class Booking implements Comparable<Booking> {
         if (this.bookedDate.getDayOfYear() == other.bookedDate.getDayOfYear() )
         {
             // TODO: Make account for minutes.
-            return 0 < this.startingTime.getHour() - other.endTime.getHour();
+            return 0 < (this.startingTime.getHour() + this.startingTime.getMinute()) - (other.endTime.getHour() + other.endTime.getMinute());
         }
         return 0 < this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
     }
@@ -80,7 +79,7 @@ public class Booking implements Comparable<Booking> {
         if (this.bookedDate.getDayOfYear() == other.bookedDate.getDayOfYear() )
         {
             // TODO: Make account for minutes.
-            return 0 > this.endTime.getHour() - other.startingTime.getHour();
+            return 0 > (this.endTime.getHour() + this.endTime.getMinute()) - (other.startingTime.getHour()+ this.startingTime.getMinute());
         }
         return 0 > this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
     }
