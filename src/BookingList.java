@@ -15,13 +15,14 @@ public class BookingList extends ArrayList<Booking>
     public boolean add(Booking booking)
     {
         // Aborts if not valid timeslot.
-        if (!isShopOpen(booking.bookedDate) || LocalDate.now().plusYears(1).isBefore(booking.bookedDate))
+        if (!isShopOpen(booking.startingTime)
+        ||  LocalDate.now().plusYears(1).isBefore(booking.startingTime.toLocalDate()))
         {
             return false;
         }
 
         // fetch bookings occurring on the same date.
-        ArrayList<Booking> list = getBookingsFor(booking.bookedDate);
+        ArrayList<Booking> list = getBookingsFor(booking.startingTime);
 
         // Check if overlapping existing bookings
         for (Booking b : list)
@@ -67,11 +68,11 @@ public class BookingList extends ArrayList<Booking>
     }
 
     // returns the next booking for a given phone number, or null if none exists within a year.
-    public Booking getBookingTlf(String phoneNumber)
+    public Booking getBookingNumber(String phoneNumber)
     {
         BookingList list = getBookingsFor(LocalDateTime.now(), LocalDateTime.now().plusYears(1));
 
-        for (Booking booking : list) // TODO: Add PhoneNumber var in Booking.
+        for (Booking booking : list)
         {
             if (booking.phoneNumber.equals(phoneNumber))
             {
@@ -167,7 +168,7 @@ public class BookingList extends ArrayList<Booking>
         // Checks each booking if on given date and adds those to return value.
         for (Booking booking : this)
         {
-            if (booking.bookedDate.isEqual(date))
+            if (booking.startingTime.toLocalDate().isEqual(date))
             {
                 list.add(booking);
             }
@@ -199,8 +200,8 @@ public class BookingList extends ArrayList<Booking>
         // check each booking in archive if they are within the given period and, if so, add them to returned value.
         for (Booking booking : this)
         {
-            if (booking.bookedDate.isAfter(start)
-                    && booking.bookedDate.isBefore(end))
+            if (booking.startingTime.toLocalDate().isAfter(start)
+                    && booking.startingTime.toLocalDate().isBefore(end))
             {
                 list.add(booking);
             }
@@ -220,7 +221,37 @@ public class BookingList extends ArrayList<Booking>
         return getBookingsFor(startDate.toLocalDate(), endDate.toLocalDate());
     }
 
-    public String printDay(LocalDate date)
+    public BookingList getFutureBookings()
+    {
+        return getBookingsFor(LocalDate.now(), LocalDate.now().plusYears(1));
+    }
+
+    public BookingList getPastBookings()
+    {
+        BookingList list = new BookingList();
+
+        // expands period by one day each end to include start- and end-date in return value.
+        LocalDate end   = LocalDate.now().plusDays(1);
+
+        // check each booking in archive if they are within the given period and, if so, add them to returned value.
+        for (Booking booking : this)
+        {
+            if (booking.startingTime.toLocalDate().isBefore(end))
+            {
+                list.add(booking);
+            }
+            else
+            { // OBS: this depends on the archive being sorted, breaks when past date.
+                break;
+            }
+        }
+
+
+
+        return list;
+    }
+
+    public String printDay(LocalDate date) // todo WiP
     {
         StringBuilder string = new StringBuilder();
 
@@ -280,6 +311,8 @@ public class BookingList extends ArrayList<Booking>
         StringBuilder string = new StringBuilder();
 
         // TODO: all of this.
+
+        string.append("");
 
         return string.toString();
     }
