@@ -23,7 +23,7 @@ public class DeleteBooking
 
         System.out.print("type your phone number.");
         String phonenumber = scanner.nextLine();
-        Booking booking = bookings.getBookingTlf(phonenumber);
+        Booking booking = bookings.getBookingNumber(phonenumber);
         bookings.remove(booking);
     }
 }
