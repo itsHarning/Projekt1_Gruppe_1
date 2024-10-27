@@ -1,17 +1,34 @@
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class BookingList extends ArrayList<Booking>
 {
-    private static final ArrayList<LocalDate> vacationDays = new ArrayList<>();
+    private final ArrayList<LocalDate> vacationDays = new ArrayList<>();
+
+    public boolean addVacation(LocalDate date)
+    {
+        for (Booking booking : this) // checks if there exists bookings on given date.
+        {
+            if (booking.startingTime.toLocalDate().isEqual(date)) return false;
+        }
+        vacationDays.removeIf(d -> d.isEqual(date)); // this is the simplest way to avoid duplicate dates.
+        vacationDays.add(date);
+        return true;
+    }
+
+    public boolean removeVacation(LocalDate date)
+    {
+        return vacationDays.removeIf(d -> d.isEqual(date));
+    }
 
     // Constructor starts empty
     public BookingList(){}
 
     // Adds booking to list if it does not coincide with other bookings or time off.
-    @Override // returns false if booking was NOT added!
+    // returns false if booking was NOT added!
     public boolean add(Booking booking)
     {
         // Aborts if not valid timeslot.
@@ -38,6 +55,18 @@ public class BookingList extends ArrayList<Booking>
 
         return true;
     }
+
+    public boolean clearDate(LocalDate date)
+    {
+        return this.removeIf(d -> d.startingTime.toLocalDate().isEqual(date));
+    }
+
+    public Booking get(int index) {return this.getFirst();}
+    public Booking getFirst() {return this.getLast();}
+    public Booking getLast()
+    {
+        return new Booking("John Doe", "00000000", "2000 1 1 00:00");
+    } // These getters come with being an Arraylist, but are not appropriate BookingList functionality and are therefore overridden.
 
     // returns the booking that overlaps given time, or null if none exists.
     public Booking getBooking(LocalDateTime dateTime)
@@ -83,11 +112,12 @@ public class BookingList extends ArrayList<Booking>
     }
 
     // Checks if time coincides with weekend, vacation or closing hours.
-    public static boolean isShopOpen(LocalDateTime time)
+    // TODO: implement 'global' var for opening hours.
+    public boolean isShopOpen(LocalDateTime time)
     {
-        if (time.getDayOfWeek().getValue() > 5) return false;
-        if (time.getHour() < 8 || time.getHour() > 16) return false;
-        for (LocalDate vDay : vacationDays)
+        if (time.getDayOfWeek().getValue() > 5) return false; // checks if weekend.
+        if (time.getHour() < 10 || time.getHour() > 18) return false; // checks opening hours.
+        for (LocalDate vDay : vacationDays) // checks if reserved vacation day.
         {
             if (vDay.isEqual(time.toLocalDate()))
             {
@@ -99,7 +129,7 @@ public class BookingList extends ArrayList<Booking>
     }
 
     // Accounts for arguments of 'LocalDateTime'
-    public static boolean isShopOpen(LocalDate day)
+    public boolean isShopOpen(LocalDate day)
     {
         // checks at hard set time, where shop is open if not having the day off.
         return isShopOpen(day.atTime(12,0));
@@ -107,57 +137,87 @@ public class BookingList extends ArrayList<Booking>
 
     // Checks given day whether there is an available timeslot for a new booking,
     // Returns the all available times in hourly increments or null if none exists for the date.
+    // TODO: implement 'global' var for opening hours.
+    // TODO: take account of different lengths of booking
     public LocalDateTime[] timesAt(LocalDate date)
     {
         // Quick return if date is not a workday.
-        if (!isShopOpen(date)) return null; // TODO: show error-screen
+        if (!isShopOpen(date)) return null;
 
         ArrayList<Booking> list = getBookingsFor(date);
+        ArrayList<LocalDateTime> times = new ArrayList<>();
 
-        // TODO: All of this
+        LocalDateTime time = date.atTime(10, 0);
+        for (Booking booking : list)
+        {
+            if (time.until(booking.startingTime, ChronoUnit.MINUTES) >= 60)
+            {
+                times.add(time.plusMinutes(0));
+                times.add(booking.startingTime.minusMinutes(60));
+                time = booking.endTime.plusMinutes(1);
+            }
+        }
+        if (list.isEmpty())
+        {
+            return new LocalDateTime[]{time, date.atTime(17, 0)};
+        }
+        if (list.getLast().endTime.isBefore(date.atTime(17, 0)))
+        {
+            times.add(list.getLast().endTime.plusMinutes(1));
+            times.add(date.atTime(17, 0));
+        }
 
-        return null;
+        return times.toArray(new LocalDateTime[0]);
     }
 
     // Checks given time whether it is available for a new booking,
     // Returns same time if available.
     // Otherwise, returns the earliest available timeslot or null if none exists for the date.
+    // TODO: implement 'global' var for opening hours.
     public LocalDateTime hasTimeAt(LocalDateTime time)
     {
-        // Quick return if date is not a workday.
+        // catch times before current time, to ensure time returned is NOT in the past.
+        if (time.isBefore(LocalDateTime.now())) time = LocalDateTime.now();
+        if (time.getHour() < 10 || time.getHour() > 17) time = time.toLocalDate().atTime(10, 0);
+
+        // Quick return if time is not within work-hours.
         if (!isShopOpen(time)) return null; // TODO: show error-screen
 
-        LocalDateTime[] earliest = timesAt(time.toLocalDate());
+        LocalDateTime[] list = timesAt(time.toLocalDate());
 
-        return time;
-    }
-
-    // returns the next available timeslot for a booking from given time.
-    public LocalDateTime nextAvailableTime(LocalDateTime startTime)
-    {
-        // catch times before current time, to ensure time returned is NOT in the past.
-        if (startTime.isBefore(LocalDateTime.now())) startTime = LocalDateTime.now();
-
-        // TODO: take account of workday scope and vacations.
-
-        for (int i = 0; i < this.size(); i++)
+        if (list.length == 0) return time; // Quick return if there are no bookings on given date.
+        for (int i = 0; i < list.length; i += 2)
         {
-            if (this.get(i).endTime.isAfter(startTime))
+            if (time.isAfter(list[i]) && time.isBefore(list[i+1]))
             {
-                if (1 > this.get(i+1%this.size()).startingTime.getHour()-this.get(i).endTime.getHour())
-                {
-                    return this.get(i).endTime;
-                }
+                return time;
+            }
+            else if (time.isBefore(list[i]))
+            {
+                return list[i];
             }
         }
 
-        return startTime;
+        return null;
+    }
+
+    public LocalDateTime hasTimeAt(LocalDate date)
+    {
+        return hasTimeAt(date.atStartOfDay());
     }
 
     // returns the next available timeslot for a booking from NOW.
     public LocalDateTime nextAvailableTime()
     {
-        return nextAvailableTime(LocalDateTime.now());
+        LocalDateTime time = hasTimeAt(LocalDateTime.now());
+        int addedDays = 1;
+
+        while (time == null)
+        {
+            time = hasTimeAt(LocalDate.now().plusDays(addedDays));
+        }
+
+        return time;
     }
 
     // Return list of each booking occurring on given date
@@ -173,7 +233,7 @@ public class BookingList extends ArrayList<Booking>
                 list.add(booking);
             }
             else if (list.size() > 0)
-            { // OBS: this depends on the archive being sorted, breaks when past date.
+            { // OBS: this depends on the archive being sorted, breaks out of loop when past given date.
                 break;
             }
         }
@@ -246,8 +306,6 @@ public class BookingList extends ArrayList<Booking>
             }
         }
 
-
-
         return list;
     }
 
@@ -301,18 +359,20 @@ public class BookingList extends ArrayList<Booking>
             // TODO: clear StringBuilder.
         }
 
-
-
         return string.toString();
     }
 
     public String toString()
     {
+        BookingList list = getFutureBookings();
         StringBuilder string = new StringBuilder();
 
-        // TODO: all of this.
-
-        string.append("");
+        string.append(list.size());
+        string.append(" future bookings. ");
+        string.append((size() - list.size()));
+        string.append(" completed.");
+        string.append(this.size());
+        string.append(" total.");
 
         return string.toString();
     }
