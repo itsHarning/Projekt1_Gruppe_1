@@ -1,6 +1,7 @@
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class Booking implements Comparable<Booking> {
     String customerName;
@@ -58,35 +59,25 @@ public class Booking implements Comparable<Booking> {
         // Whether returning POSITIVE or NEGATIVE difference is IMPORTANT for sorting function!
         if (this.isAfterDate(other)) // if after, return POSITIVE time between bookings.
         {
-            return (this.startingTime.getHour() + this.startingTime.getMinute()) - (other.endTime.getHour() + other.endTime.getMinute());
+            return (int)other.endTime.until(this.startingTime, ChronoUnit.MINUTES);
         }
         else if (this.isBeforeDate(other)) // if before, return NEGATIVE time between bookings.
         {
-            return (this.endTime.getHour() + this.endTime.getMinute()) - (other.startingTime.getHour()+ this.startingTime.getMinute());
+            return -((int)this.endTime.until(other.startingTime, ChronoUnit.MINUTES));
         }
 
         // If neither before nor after, return 0 to indicate overlap.
         return difference;
     }
 
-    // Checks if this Booking is scheduled after another
-    public boolean isAfterDate(Booking other) {
-        // First check if same date.
-        if (this.startingTime.getDayOfYear() == other.startingTime.getDayOfYear() )
-        {
-            return 0 < (this.startingTime.getHour() + this.startingTime.getMinute()) - (other.endTime.getHour() + other.endTime.getMinute());
-        }
-        return 0 < this.startingTime.getDayOfYear() - other.startingTime.getDayOfYear();
+    // Checks if this Booking is scheduled before another
+    public boolean isBeforeDate(Booking other){
+        return this.isBeforeDate(other.startingTime);
     }
 
-    // Checks if this Booking is scheduled before another
-    public boolean isBeforeDate(Booking other) {
-        // First check if same date.
-        if (this.startingTime.getDayOfYear() == other.startingTime.getDayOfYear() )
-        {
-            return 0 > (this.endTime.getHour() + this.endTime.getMinute()) - (other.startingTime.getHour()+ this.startingTime.getMinute());
-        }
-        return 0 > this.startingTime.getDayOfYear() - other.startingTime.getDayOfYear();
+    // Checks if this Booking is scheduled after another
+    public boolean isAfterDate(Booking other){
+        return this.isAfterDate(other.endTime);
     }
 
     // checks if the booking is before a given date
