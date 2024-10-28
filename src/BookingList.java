@@ -1,13 +1,16 @@
+import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class BookingList extends ArrayList<Booking>
+public class BookingList extends ArrayList<Booking> implements Serializable // serializable to save to file.
 {
-    private final ArrayList<LocalDate> vacationDays = new ArrayList<>();
+    private final ArrayList<LocalDate> vacationDays;
 
+    // adds given date to vacationDays, ensuring not to add duplicate dates or overlap Bookings.
+    // returns false if attempted to add date with registered bookings.
     public boolean addVacation(LocalDate date)
     {
         for (Booking booking : this) // checks if there exists bookings on given date.
@@ -19,13 +22,14 @@ public class BookingList extends ArrayList<Booking>
         return true;
     }
 
+    // removes the given date from vacationDays.
     public boolean removeVacation(LocalDate date)
     {
         return vacationDays.removeIf(d -> d.isEqual(date));
     }
 
-    // Constructor starts empty
-    public BookingList(){}
+    // Constructor starts with empty lists.
+    public BookingList(){vacationDays = new ArrayList<>();}
 
     // Adds booking to list if it does not coincide with other bookings or time off.
     // returns false if booking was NOT added!
@@ -33,12 +37,12 @@ public class BookingList extends ArrayList<Booking>
     {
         // Aborts if not valid timeslot.
         if (!isShopOpen(booking.startingTime)
-        ||  LocalDate.now().plusYears(1).isBefore(booking.startingTime.toLocalDate()))
+        ||  LocalDate.now().plusYears(1).isBefore(booking.startingTime.toLocalDate())) // don't allow planning more than a year ahead?
         {
             return false;
         }
 
-        // fetch bookings occurring on the same date.
+        // get bookings occurring on the same date.
         ArrayList<Booking> list = getBookingsFor(booking.startingTime);
 
         // Check if overlapping existing bookings
@@ -56,17 +60,26 @@ public class BookingList extends ArrayList<Booking>
         return true;
     }
 
+    // These adders come with being an Arraylist, but are not appropriate BookingList functionality and are therefore overridden.
+    public void add(int index, Booking booking){}
+    public void addFirst(Booking booking){}
+    public void addLast(Booking booking){}
+
+
+    // removes ALL Bookings occurring on given date.
     public boolean clearDate(LocalDate date)
     {
         return this.removeIf(d -> d.startingTime.toLocalDate().isEqual(date));
     }
 
+    // These getters come with being an Arraylist, but are not appropriate BookingList functionality and are therefore overridden.
+    // Returns dummy Booking.
     public Booking get(int index) {return this.getFirst();}
     public Booking getFirst() {return this.getLast();}
     public Booking getLast()
     {
-        return new Booking("John Doe", "00000000", "2000 1 1 00:00");
-    } // These getters come with being an Arraylist, but are not appropriate BookingList functionality and are therefore overridden.
+        return new Booking("John Doe", "01010101", "2001 01 01 01:01");
+    }
 
     // returns the booking that overlaps given time, or null if none exists.
     public Booking getBooking(LocalDateTime dateTime)
@@ -81,7 +94,7 @@ public class BookingList extends ArrayList<Booking>
         return null;
     }
 
-    // returns the next booking for a given customer, or null if none exists within a year.
+    // returns the next planned booking for a given customer, or null if none exists within a year.
     public Booking getBooking(String customerName)
     {
         BookingList list = getBookingsFor(LocalDateTime.now(), LocalDateTime.now().plusYears(1));
@@ -96,7 +109,7 @@ public class BookingList extends ArrayList<Booking>
         return null;
     }
 
-    // returns the next booking for a given phone number, or null if none exists within a year.
+    // returns the next planned booking for a given phone number, or null if none exists within a year.
     public Booking getBookingNumber(String phoneNumber)
     {
         BookingList list = getBookingsFor(LocalDateTime.now(), LocalDateTime.now().plusYears(1));
@@ -116,7 +129,7 @@ public class BookingList extends ArrayList<Booking>
     public boolean isShopOpen(LocalDateTime time)
     {
         if (time.getDayOfWeek().getValue() > 5) return false; // checks if weekend.
-        if (time.getHour() < 10 || time.getHour() > 18) return false; // checks opening hours.
+        if (time.getHour() < 10 || time.getHour() > 17) return false; // checks opening hours.
         for (LocalDate vDay : vacationDays) // checks if reserved vacation day.
         {
             if (vDay.isEqual(time.toLocalDate()))
@@ -176,17 +189,19 @@ public class BookingList extends ArrayList<Booking>
     // TODO: implement 'global' var for opening hours.
     public LocalDateTime hasTimeAt(LocalDateTime time)
     {
-        // catch times before current time, to ensure time returned is NOT in the past.
-        if (time.isBefore(LocalDateTime.now())) time = LocalDateTime.now();
+        // ensure time is within opening hours.
         if (time.getHour() < 10 || time.getHour() > 17) time = time.toLocalDate().atTime(10, 0);
 
-        // Quick return if time is not within work-hours.
-        if (!isShopOpen(time)) return null; // TODO: show error-screen
+        // catch times before current time, to ensure time returned is NOT in the past.
+        if (!time.isAfter(LocalDateTime.now())) time = LocalDateTime.now().plusMinutes(30); // add 30 minutes to not make booking right THIS instant.
+
+        // Quick return if time is not on a work-day.
+        if (!isShopOpen(time)) return null; // TODO: show error-screen?
 
         LocalDateTime[] list = timesAt(time.toLocalDate());
 
         if (list.length == 0) return time; // Quick return if there are no bookings on given date.
-        for (int i = 0; i < list.length; i += 2)
+        for (int i = 0; i < list.length; i += 2) // TODO: more explanation comments
         {
             if (time.isAfter(list[i]) && time.isBefore(list[i+1]))
             {
@@ -210,10 +225,11 @@ public class BookingList extends ArrayList<Booking>
     public LocalDateTime nextAvailableTime()
     {
         LocalDateTime time = hasTimeAt(LocalDateTime.now());
-        int addedDays = 1;
+        int addedDays = 0;
 
-        while (time == null)
+        while (time == null) // TODO: comment
         {
+            addedDays++;
             time = hasTimeAt(LocalDate.now().plusDays(addedDays));
         }
 
@@ -261,7 +277,7 @@ public class BookingList extends ArrayList<Booking>
         for (Booking booking : this)
         {
             if (booking.startingTime.toLocalDate().isAfter(start)
-                    && booking.startingTime.toLocalDate().isBefore(end))
+             && booking.startingTime.toLocalDate().isBefore(end))
             {
                 list.add(booking);
             }
@@ -309,12 +325,13 @@ public class BookingList extends ArrayList<Booking>
         return list;
     }
 
+    // TODO: implement 'global' var for opening hours.
+    // TODO: make display accurate times for bookings.
     public String printDay(LocalDate date) // todo WiP
     {
-        StringBuilder string = new StringBuilder();
+        StringBuilder string = new StringBuilder("\t");
 
         string.append(date.format(DateTimeFormatter.ofPattern("dd/MM")));
-        string.append("\n");
 
         if (!isShopOpen(date))
         {
@@ -334,7 +351,7 @@ public class BookingList extends ArrayList<Booking>
         int time;
         for (int i = 0; i < 16; i++)
         {
-            time = 8 + i/2;
+            time = 10 + i/2;
             string.append("\n" + time + ":");
             if (i%2 == 0)
             {
