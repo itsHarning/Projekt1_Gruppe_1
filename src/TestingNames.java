@@ -4,6 +4,19 @@ import java.util.*;
 
 public class TestingNames
 {
+    private static final Random rand = new Random(0);
+
+    static String getNumber()
+    {
+        return rand.nextInt(89999999)+10000000+"";
+    }
+
+    static String getNumber(String name)
+    {
+        rand.setSeed(name.hashCode());
+        return getNumber();
+    }
+
     // returns and removes a random name from stored 'list'
     static String getName()
     {
@@ -84,7 +97,7 @@ public class TestingNames
         s.close();
     }
 
-    static final ArrayList<String> list = new ArrayList<>(Arrays.asList(
+    private static final ArrayList<String> list = new ArrayList<>(Arrays.asList(
             "Aaron",
             "Abbey",
             "Abbie",
