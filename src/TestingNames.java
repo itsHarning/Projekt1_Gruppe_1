@@ -1,13 +1,11 @@
 import java.io.File;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.io.FileNotFoundException;
+import java.util.*;
 
-public interface Names
+public class TestingNames
 {
-    File namesTXT = new File("Names.txt");
-
-    static String getName()
+    // returns and removes a random name from stored 'list'
+    static String getName() throws FileNotFoundException
     {
         if (list.isEmpty())
         {
@@ -17,6 +15,8 @@ public interface Names
         return list.remove((int)(Math.random()*list.size()));
     }
 
+    // adds a random last name initial to each name stored in 'list'
+    // also duplicates random first names, while ensuring different last names.
     static void addLastNames()
     {
         ArrayList<String> newNames = new ArrayList<>();
@@ -44,11 +44,13 @@ public interface Names
         list.addAll(newNames);
     }
 
+    // randomizes 'list', mainly used for initial alphabetized order.
     static void randomize()
     {
         Collections.shuffle(list);
     }
 
+    // randomizes 'list' to ensure not alphabetized, then discards all names past length.
     static void trimLength(int length)
     {
         randomize();
@@ -58,13 +60,22 @@ public interface Names
         }
     }
 
-    static void reset()
+    // loads original list of names into 'list'.
+    // OBS: these are without last names.
+    static void reset() throws FileNotFoundException
     {
+        Scanner s = new Scanner(new File("TestingNames.txt"));
+
         list.clear();
-        list.addAll(S.scanText(namesTXT));
+        while (s.hasNextLine())
+        {
+            list.add(s.nextLine());
+        }
+
+        s.close();
     }
 
-    ArrayList<String> list = new ArrayList<>(Arrays.asList(
+    static final ArrayList<String> list = new ArrayList<>(Arrays.asList(
             "Aaron",
             "Abbey",
             "Abbie",
