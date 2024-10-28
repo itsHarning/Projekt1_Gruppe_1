@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class BookingList extends ArrayList<Booking> implements Serializable // serializable to save to file.
+public class BookingList extends ArrayList<Booking> implements Serializable // TODO: serializable to save to file.
 {
     private final ArrayList<LocalDate> vacationDays;
 
@@ -91,8 +91,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // s
     // checks if given date is in the weekend
     public boolean isWeekend(LocalDate date)
     {
-        if (date.getDayOfWeek().getValue() > 5) return true; // checks if weekend.
-        return false;
+        return date.getDayOfWeek().getValue() > 5; // checks if weekend.
     }
 
     // checks if given date coincides with registered vacation.
@@ -111,10 +110,10 @@ public class BookingList extends ArrayList<Booking> implements Serializable // s
 
 
 
-    // Constructor starts with empty lists.
+    // constructor starts with empty lists.
     public BookingList(){vacationDays = new ArrayList<>();}
 
-    // Adds booking to list if it does not coincide with other bookings or time off.
+    // adds booking to list if it does not coincide with other bookings or time off.
     // returns false if booking was NOT added!
     public boolean add(Booking booking)
     {
@@ -143,7 +142,13 @@ public class BookingList extends ArrayList<Booking> implements Serializable // s
         return true;
     }
 
-    // These adders come with being an Arraylist, but are not appropriate BookingList functionality and are therefore overridden.
+    // add-method that constructs a new Booking automatically from given arguments.
+    public boolean add(String name, String phoneNum, String startingTime)
+    {
+        return this.add(new Booking(name, phoneNum, startingTime));
+    }
+
+    // these adders come with being an Arraylist, but are not appropriate BookingList functionality and are therefore overridden.
     public void add(int index, Booking booking){}
     public void addFirst(Booking booking){}
     public void addLast(Booking booking){}
@@ -335,7 +340,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // s
         if (time.getHour() < 10 || time.getHour() > 17) time = time.toLocalDate().atTime(10, 0);
 
         // catch times before current time, to ensure time returned is NOT in the past.
-        if (time.isBefore(LocalDateTime.now().plusMinutes(29))) time = LocalDateTime.now().plusMinutes(30); // add 30 minutes to not make booking right THIS instant.
+        if (time.isBefore(LocalDateTime.now().plusMinutes(15))) time = LocalDateTime.now().plusMinutes(15); // add 30 minutes to not make booking right THIS instant.
 
         // Quick return if time is not on a work-day.
         if (!isShopOpen(time)) return null; // TODO: show error-screen?
@@ -364,21 +369,40 @@ public class BookingList extends ArrayList<Booking> implements Serializable // s
         return hasTimeAt(date.atStartOfDay());
     }
 
-    // returns the soonest available time for a booking from REAL-TIME NOW.
-    public LocalDateTime nextAvailableTime()
+    // returns the soonest available time for a booking from after a given time, even if first on a later date.
+    public LocalDateTime nextAvailableTimeFrom(LocalDateTime time)
     {
-        LocalDateTime time = hasTimeAt(LocalDateTime.now()); // checks the current day for the soonest available time.
+        LocalDateTime soonestTime = hasTimeAt(time); // checks the current day for the soonest available time.
 
         int addedDays = 0;
-        while (time == null) // checks consecutive days for the soonest available time, so long as none has been found.
+        while (soonestTime == null) // checks consecutive days for the soonest available time, so long as none has been found.
         {
             addedDays++;
-            time = hasTimeAt(LocalDate.now().plusDays(addedDays));
+            soonestTime = hasTimeAt(LocalDate.now().plusDays(addedDays));
         }
 
-        return time;
+        return soonestTime;
     }
 
+    // Accounts for arguments of 'LocalDate'.
+    public LocalDateTime nextAvailableTimeFrom(LocalDate date)
+    {
+        return nextAvailableTimeFrom(date.atStartOfDay());
+    }
+
+    // returns the soonest available time for a booking from REAL-TIME NOW, even if first on a later date.
+    public LocalDateTime nextAvailableTime()
+    {
+        return nextAvailableTimeFrom(LocalDateTime.now());
+    }
+
+    // returns the soonest available time for a booking from REAL-TIME NOW in string format.
+    public String nextAvailableTime(String format) // TODO: should probably have a static 'toStringFormat' in Booking itself
+    {
+        return nextAvailableTime().format(DateTimeFormatter.ofPattern(format));
+    }
+
+    // returns formatted schedule for given date.
     // TODO: implement 'global' var for opening hours.
     // TODO: make display accurate times for bookings.
     public String printDay(LocalDate date) // todo WiP
@@ -425,8 +449,60 @@ public class BookingList extends ArrayList<Booking> implements Serializable // s
                 }
             }
         }
+        return string.toString();
+    }
+
+    // returns formatted schedule for given date.
+    public String printDay2(LocalDate date) // TODO: confirm schedule format with BurgerBoy
+    {
+        StringBuilder string = new StringBuilder("\t\t");
+
+        string.append(date.format(DateTimeFormatter.ofPattern("dd/MM")));
+
+        if (!isShopOpen(date))
+        {
+            string.append("\n\n");
+            switch (date.getDayOfWeek())
+            {
+                case SATURDAY, SUNDAY: string.append("WEEKEND"); break;
+                default: string.append("VACATION");
+            }
+
+            return string.toString();
+        }
+
+        BookingList list = getBookingsFor(date);
+        LocalDateTime start = date.atTime(10, 0);
+
+        for (Booking booking : list) // TODO: make pretty and comment.
+        {
+            if (start.until(booking.startingTime, ChronoUnit.MINUTES) > 10)
+            {
+                string.append("\n");
+                string.append(start.format(DateTimeFormatter.ofPattern("HH:mm")));
+                string.append("-");
+                string.append(booking.startingTime.format(DateTimeFormatter.ofPattern("HH:mm")));
+            }
+            string.append("\n");
+            string.append(booking.startingTime.format(DateTimeFormatter.ofPattern("HH:mm")));
+            string.append("-");
+            string.append(booking.endTime.plusMinutes(1).format(DateTimeFormatter.ofPattern("HH:mm")));
+            string.append(" ");
+            string.append(booking.customerName);
+            start = booking.endTime.plusMinutes(1);
+        }
+        string.append("\n");
+        string.append(start.format(DateTimeFormatter.ofPattern("HH:mm")));
+        string.append("-");
+        string.append(date.atTime(18,0).format(DateTimeFormatter.ofPattern("HH:mm")));
 
         return string.toString();
+    }
+
+    // returns formatted schedule for TODAY.
+    public String printDay()
+    {
+        return printDay(LocalDate.now());
     }
 
     public String toString()
