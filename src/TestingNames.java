@@ -5,7 +5,7 @@ import java.util.*;
 public class TestingNames
 {
     // returns and removes a random name from stored 'list'
-    static String getName() throws FileNotFoundException
+    static String getName()
     {
         if (list.isEmpty())
         {
@@ -62,9 +62,18 @@ public class TestingNames
 
     // loads original list of names into 'list'.
     // OBS: these are without last names.
-    static void reset() throws FileNotFoundException
+    static void reset()
     {
-        Scanner s = new Scanner(new File("TestingNames.txt"));
+        Scanner s = null;
+        try
+        {
+            s = new Scanner(new File("TestingNames.txt"));
+        }
+        catch (FileNotFoundException e)
+        {
+            list.clear();
+            return;
+        }
 
         list.clear();
         while (s.hasNextLine())
