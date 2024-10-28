@@ -49,7 +49,7 @@ public class Booking implements Comparable<Booking> {
     // Returns 0 if overlapping.
     public int compareTo(Booking other) {
         // First compare the day of the date.
-        int difference = this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
+        int difference = this.startingTime.getDayOfYear() - other.startingTime.getDayOfYear();
 
         // Return if not on the same day
         if (difference != 0) return difference;
@@ -72,21 +72,21 @@ public class Booking implements Comparable<Booking> {
     // Checks if this Booking is scheduled after another
     public boolean isAfterDate(Booking other) {
         // First check if same date.
-        if (this.bookedDate.getDayOfYear() == other.bookedDate.getDayOfYear() )
+        if (this.startingTime.getDayOfYear() == other.startingTime.getDayOfYear() )
         {
             return 0 < (this.startingTime.getHour() + this.startingTime.getMinute()) - (other.endTime.getHour() + other.endTime.getMinute());
         }
-        return 0 < this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
+        return 0 < this.startingTime.getDayOfYear() - other.startingTime.getDayOfYear();
     }
 
     // Checks if this Booking is scheduled before another
     public boolean isBeforeDate(Booking other) {
         // First check if same date.
-        if (this.bookedDate.getDayOfYear() == other.bookedDate.getDayOfYear() )
+        if (this.startingTime.getDayOfYear() == other.startingTime.getDayOfYear() )
         {
             return 0 > (this.endTime.getHour() + this.endTime.getMinute()) - (other.startingTime.getHour()+ this.startingTime.getMinute());
         }
-        return 0 > this.bookedDate.getDayOfYear() - other.bookedDate.getDayOfYear();
+        return 0 > this.startingTime.getDayOfYear() - other.startingTime.getDayOfYear();
     }
 
     // checks if the booking is before a given date
