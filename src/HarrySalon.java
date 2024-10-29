@@ -9,10 +9,14 @@ public class HarrySalon {
     static String password = "HairyHarry";
     static boolean loggedIn = false;
 
-    static BookingList bookingList = new BookingList();
+    public static final BookingList bookingList = new BookingList();
 
     public static void main(String[] args) {
-        mainMenu();
+        System.out.println("25/10\t26/10\t27/10\t");
+        System.out.println("10:30\t12:30\t11:00\t");
+        System.out.println("11:00\t14:30\t11:00\t");
+        System.out.println("16:30\t15:00\t\t");
+       // mainMenu();
     }
     static void mainMenu(){
 
