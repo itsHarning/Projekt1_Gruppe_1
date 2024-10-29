@@ -88,6 +88,12 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         return isShopOpen(day.atTime(12,0));
     }
 
+    // Accounts for arguments of 'Booking'
+    public boolean isShopOpen(Booking booking)
+    {
+        return isShopOpen(booking.startingTime.toLocalDate());
+    }
+
     // checks if given date is in the weekend
     public boolean isWeekend(LocalDate date)
     {
@@ -455,7 +461,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
     // returns formatted schedule for given date.
     public String printDay2(LocalDate date) // TODO: confirm schedule format with BurgerBoy
     {
-        StringBuilder string = new StringBuilder("\t\t");
+        StringBuilder string = new StringBuilder("       ");
 
         string.append(date.format(DateTimeFormatter.ofPattern("dd/MM")));
 
