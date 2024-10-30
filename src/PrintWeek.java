@@ -4,13 +4,10 @@ import java.util.ArrayList;
 
 public class PrintWeek {
 
-
-
     public static void main(String[] args) {
 
         TestingNames.addLastNames();
         TestingNames.randomize();
-
 
        for(int i = 0; i <1; i++){
             HarrySalon.bookingList.add(new Booking(TestingNames.getName(), TestingNames.getNumber(), HarrySalon.bookingList.nextAvailableTimeFrom(LocalDate.of(2024,10,29)).format(DateTimeFormatter.ofPattern(Booking.formatterString))));
