@@ -39,23 +39,24 @@ public class PrintWeek {
         while (true){
             try {
                 DateTimeFormatter Formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
-                LocalDate date = LocalDate.parse(sc.nextLine(), Formatter);
+                String temp = sc.nextLine();
+                LocalDate date = LocalDate.parse(temp, Formatter);
                 return date;
             }
             catch (DateTimeParseException e){
                 System.out.println("ikke en gyldig dato");
-                sc.nextLine();
+
             }
         }
     }
     // gets each day from the startdate to the enddate,
-    // then it calls printDay2 to get a string with all appointments from that day, with all of the days
+    // then it calls printDay to get a string with all appointments from that day, with all of the days
     // then it calls PrintChosendays and gives it a list with all the days
     public  static void PrintTimeSpan(LocalDate startDate, LocalDate endDate){
         ArrayList<String> days = new ArrayList<>();
        LocalDate date = startDate;
        while (!date.isAfter(endDate)){
-           days.add(HarrySalon.bookingList.printDay2(date));
+           days.add(HarrySalon.bookingList.printDay(date));
            date = date.plusDays(1);
        }
         System.out.println(startDate + ", " + endDate);

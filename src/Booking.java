@@ -3,6 +3,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
+
 public class Booking implements Comparable<Booking> {
     String customerName;
     String phoneNumber;
@@ -11,7 +12,7 @@ public class Booking implements Comparable<Booking> {
     LocalDateTime endTime;
     static String formatterString = "yyyy MM dd HH:mm";
     DateTimeFormatter Formatter = DateTimeFormatter.ofPattern(formatterString);
-    Receipt receipt = new Receipt(); // receipt class doesn't have any function yet
+    Receipt receipt = new Receipt(); // receipt class doesn't have much of a function yet
 
     Booking(String name, String phoneNum, String startingTime){
         customerName = name;
