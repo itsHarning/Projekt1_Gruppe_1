@@ -6,32 +6,25 @@ public class BookingReserver {private static boolean[] bookings = new boolean[9]
         BookingList dummy =new BookingList();
         arrangeBooking(dummy);
     }
-
     public static void arrangeBooking(BookingList bookinglist)
     {
         Scanner scanner = new Scanner(System.in);
         System.out.println("please choose a timeperiod between 10-17");
-
         try {
-            System.out.println("ask date");
-            String date = scanner.nextLine();
-
             System.out.print("ask name");
             String name = scanner.nextLine();
 
             System.out.print("ask phone number.");
             String phonenumber = scanner.nextLine();
 
-            System.out.println("Indtast venligst hvilken tidsperiode mellem (10-17).");
+            System.out.println("Indtast venligst dato og tid " + Booking.formatterString);
             String time = scanner.nextLine();
 
             Booking booking = new Booking(name, phonenumber, time);
 
-        } catch (Exception e) {  // Hvis der opstår en fejl (f.eks. ugyldigt input)
+        } catch (Exception e) {  // if there is any errors it would print the error (like non-valid input)
             System.out.println(e.getMessage());
-            scanner.nextLine();  // Ryd scanner-bufferen
+            scanner.nextLine();  // clears the Buffer-scanner
         }
-
     }
-
 }
