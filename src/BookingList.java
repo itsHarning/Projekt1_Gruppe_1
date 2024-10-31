@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class BookingList extends ArrayList<Booking> implements Serializable // TODO: serializable to save to file.
 {
-    private final ArrayList<LocalDate> vacationDays;
+    private final ArrayList<LocalDate> vacationDays; // repurposed as Holidays.
 
     // adds given date to vacationDays, ensuring not to add duplicate dates or overlap Bookings.
     // returns false if attempted to add date with registered bookings.
@@ -106,7 +106,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         if (isWeekend(date)) return true;
         for (LocalDate vDay : vacationDays) // checks if reserved vacation day.
         {
-            if (vDay.isEqual(date))
+            if (vDay.getDayOfYear() == date.getDayOfYear())
             {
                 return true;
             }
@@ -117,7 +117,16 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
 
 
     // constructor starts with empty lists.
-    public BookingList(){vacationDays = new ArrayList<>();}
+    public BookingList()
+    {
+        vacationDays = new ArrayList<>();
+        vacationDays.add(LocalDate.of(2000,  1,  1));
+        vacationDays.add(LocalDate.of(2000,  6,  5));
+        vacationDays.add(LocalDate.of(2000, 12, 24));
+        vacationDays.add(LocalDate.of(2000, 12, 25));
+        vacationDays.add(LocalDate.of(2000, 12, 26));
+        vacationDays.add(LocalDate.of(2000, 12, 31));
+    }
 
     // adds booking to list if it does not coincide with other bookings or time off.
     // returns false if booking was NOT added!
@@ -461,26 +470,28 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
     // returns formatted schedule for given date.
     public String printDay2(LocalDate date) // TODO: confirm schedule format with BurgerBoy
     {
-        StringBuilder string = new StringBuilder("    ");
+        StringBuilder string = new StringBuilder();
 
+        // Write header for given date as date and name of day.
+        string.append("    ");
         string.append(date.format(DateTimeFormatter.ofPattern("dd/MM")));
         string.append(" ");
         string.append(date.getDayOfWeek().name());
 
-        if (!isShopOpen(date))
+        if (!isShopOpen(date)) // if the shop is not open on the date, note whether holiday or weekend.
         {
             string.append("\n\n");
             switch (date.getDayOfWeek())
             {
                 case SATURDAY, SUNDAY: string.append("WEEKEND"); break;
-                default: string.append("VACATION");
+                default: string.append("HELLIGDAG");
             }
 
-            return string.toString();
+            return string.toString(); // return without looking at potential bookings.
         }
 
-        BookingList list = getBookingsFor(date);
-        LocalDateTime start = date.atTime(10, 0);
+        BookingList list = getBookingsFor(date); // get bookings for given date.
+        LocalDateTime start = date.atTime(10, 0); // set up iterator 
 
         for (Booking booking : list) // TODO: make pretty and comment.
         {
@@ -496,9 +507,12 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
             string.append("-");
             string.append(booking.endTime.plusMinutes(1).format(DateTimeFormatter.ofPattern("HH:mm")));
             string.append(" ");
-            string.append(booking.receipt.getTotalPrice());
-            string.append(",-");
-            string.append("\t");
+            if (HarrySalon.loggedIn)
+            {
+                string.append(booking.receipt.getTotalPrice());
+                string.append(",-");
+                string.append("\t");
+            }
             string.append(booking.customerName);
             start = booking.endTime.plusMinutes(1);
         }
