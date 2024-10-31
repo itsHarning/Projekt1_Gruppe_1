@@ -6,12 +6,9 @@ import java.time.temporal.ChronoUnit;
 public class Booking implements Comparable<Booking> {
     String customerName;
     String phoneNumber;
-    int bookedMinutes=60;
-    LocalDate bookedDate;
+    int bookedMinutes;
     LocalDateTime startingTime;
     LocalDateTime endTime;
-    // TODO: not so much todo, just suggesting endtime is 1 minute before proper end time
-    //  so that starting where another booking ends doesn't flag as overlapping.
     static String formatterString = "yyyy MM dd HH:mm";
     DateTimeFormatter Formatter = DateTimeFormatter.ofPattern(formatterString);
     Receipt receipt = new Receipt(); // receipt class doesn't have any function yet
@@ -19,7 +16,7 @@ public class Booking implements Comparable<Booking> {
     Booking(String name, String phoneNum, String startingTime){
         customerName = name;
         phoneNumber = phoneNum;
-        this.bookedMinutes = bookedMinutes;
+        this.bookedMinutes = 60;
         this.startingTime = LocalDateTime.parse(startingTime, Formatter); // converts from a string to LocalDateTime
         endTime = this.startingTime.plusMinutes(bookedMinutes-1); // adds the booked minutes to the start time
     }
