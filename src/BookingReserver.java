@@ -27,7 +27,7 @@ public class BookingReserver {private static boolean[] bookings = new boolean[9]
             }
 
         } catch (Exception e) {  // if there is any errors it would print the error (like non-valid input)
-            System.out.println(e.getMessage());
+            System.out.println("ugyldig dato");
             scanner.nextLine();  // clears the Buffer-scanner
         }
     }
