@@ -1,5 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class TestingNames
@@ -15,6 +17,11 @@ public class TestingNames
     {
         rand.setSeed(name.hashCode());
         return getNumber();
+    }
+
+    static LocalDateTime getTime()
+    {
+        return LocalDate.now().plusDays(rand.nextInt(50)).atTime(rand.nextInt(10,17), rand.nextInt(0,12)*5);
     }
 
     // returns and removes a random name from stored 'list'
