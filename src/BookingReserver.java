@@ -17,7 +17,7 @@ public class BookingReserver {private static boolean[] bookings = new boolean[9]
             System.out.print("ask phone number.");
             String phonenumber = scanner.nextLine();
 
-            System.out.println("Indtast venligst dato og tid " + Booking.format);
+            System.out.println("Indtast venligst dato og tid " + Booking.formatterString);
             String time = scanner.nextLine();
 
             Booking booking = new Booking(name, phonenumber, time);
