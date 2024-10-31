@@ -1,9 +1,16 @@
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class BookingList extends ArrayList<Booking> implements Serializable // TODO: serializable to save to file.
 {
@@ -422,7 +429,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
     // TODO: make display accurate times for bookings.
 
     // returns formatted schedule for given date.
-    public String printDay(LocalDate date) // TODO: confirm schedule format with BurgerBoy
+    public String printDay(LocalDate date) // TODO: name columns
     {
         StringBuilder string = new StringBuilder();
 
@@ -502,5 +509,37 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         string.append(" total.");
 
         return string.toString();
+    }
+
+    public void saveTo()
+    {
+        ArrayList<String> list = new ArrayList<>();
+
+        for (Booking booking : this)
+        {
+            list.add("\n" + booking.customerName + "\n" + booking.phoneNumber + "\n" + booking.startingTime.format(DateTimeFormatter.ofPattern(Booking.formatterString)));
+        }
+
+        Path f = Paths.get("BookingArchive.txt");
+
+        try
+        {
+            Files.write(f, list);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void readFrom()
+    {
+        Scanner scanner = new Scanner("BookingArchive.txt");
+        this.clear();
+
+        while (scanner.hasNextLine())
+        {
+            this.add(new Booking(scanner.nextLine(), scanner.nextLine(), scanner.nextLine()));
+        }
     }
 }
