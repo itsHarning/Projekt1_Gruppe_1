@@ -4,24 +4,24 @@ import java.util.Scanner;
 
 public class HarrySalon {
     static Scanner sc = new Scanner(System.in);
-    static String[] options = {"Book Tid", "Slet Booking", "Stop Programmet", "Log Ind"};
-    static String[] extraOptions = {"Log Ud","Se Økonomi", "gør noget andet"};
+    static String[] options = {"Book Tid", "Slet Booking", "Se Bookings", "Log Ind"};
+    static String[] extraOptions = {"Log Ud"};
     static String password = "HairyHarry";
     static boolean loggedIn = false;
 
     public static final BookingList bookingList = new BookingList();
 
     public static void main(String[] args) {
-        System.out.println("25/10\t26/10\t27/10\t");
+        /*System.out.println("25/10\t26/10\t27/10\t");
         System.out.println("10:30\t12:30\t11:00\t");
         System.out.println("11:00\t14:30\t11:00\t");
-        System.out.println("16:30\t15:00\t\t");
-       // mainMenu();
+        System.out.println("16:30\t15:00\t\t");*/
+        mainMenu();
     }
     static void mainMenu(){
 
         while (true) {
-            System.out.println("\n");
+            System.out.println();
             if (loggedIn) {
                 for (int i = 0; i < options.length - 1; i++)
                     System.out.println("tryk " + (i + 1) + ": " + options[i]);
@@ -47,10 +47,11 @@ public class HarrySalon {
                         BookingReserver.arrangeBooking(bookingList);
                         return;
                     case 2:
-                        System.out.println("du sletter en tid");
+                        DeleteBooking.deleteBooking(bookingList);
                         return;
                     case 3:
-                        System.out.println("du stopper programmet");
+                        //System.out.println("du stopper programmet");
+                        PrintWeek.chooseTimeSpan();
                         return;
                     case 4:
                         if(loggedIn){
@@ -92,6 +93,8 @@ public class HarrySalon {
 
             } catch (InputMismatchException e) {
                 wrongInput();
+                sc.nextLine();
+
             }
 
         }
