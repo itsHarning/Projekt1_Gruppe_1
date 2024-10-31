@@ -4,7 +4,6 @@ public class BookingReserver {private static boolean[] bookings = new boolean[9]
 
     public static void main(String[] args) {
         BookingList dummy =new BookingList();
-        arrangeBooking(dummy);
     }
     public static void arrangeBooking()
     {
@@ -16,7 +15,7 @@ public class BookingReserver {private static boolean[] bookings = new boolean[9]
             System.out.print("indtast tlf.nummer:");
             String phonenumber = scanner.nextLine();
 
-            System.out.println("Indtast venligst dato og tid " + Booking.formatterString);
+            System.out.println("Indtast venligst dato og tid:" + Booking.formatterString);
             String time = scanner.nextLine();
 
             Booking booking = new Booking(name, phonenumber, time);
