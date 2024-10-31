@@ -6,21 +6,25 @@ public class BookingReserver {private static boolean[] bookings = new boolean[9]
         BookingList dummy =new BookingList();
         arrangeBooking(dummy);
     }
-    public static void arrangeBooking(BookingList bookinglist)
+    public static void arrangeBooking()
     {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("please choose a timeperiod between 10-17");
         try {
-            System.out.print("ask name");
+            System.out.print("indtast navn: ");
             String name = scanner.nextLine();
 
-            System.out.print("ask phone number.");
+            System.out.print("indtast tlf.nummer:");
             String phonenumber = scanner.nextLine();
 
             System.out.println("Indtast venligst dato og tid " + Booking.formatterString);
             String time = scanner.nextLine();
 
             Booking booking = new Booking(name, phonenumber, time);
+            if (!HarrySalon.bookingList.add(booking))
+            {
+                System.out.print("Denne tid er desværre allerede booket:");
+                arrangeBooking();
+            }
 
         } catch (Exception e) {  // if there is any errors it would print the error (like non-valid input)
             System.out.println(e.getMessage());
