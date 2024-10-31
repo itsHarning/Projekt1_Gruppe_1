@@ -11,11 +11,12 @@ public class PrintWeek {
     static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
-
-
         chooseTimeSpan();
     }
-    public  static void chooseTimeSpan(){
+    // this method is called from Harrysalon when you choose "Se Bookings".
+    // it calls choosetime 2 times to get 2 dates from the users, startdate and enddate,
+    // then it calls printtimespan to print all appointments each day from the startdate to the enddate
+    public static void chooseTimeSpan(){
        /* TestingNames.addLastNames();
         TestingNames.randomize();
         for(int i = 0; i <2; i++){
@@ -32,6 +33,8 @@ public class PrintWeek {
 
         PrintTimeSpan(startDate, endDate);
     }
+    //it uses a scanner to get input from the user then it converts it to a date
+    // it uses try and catch to make sure they write a date in the correct format, then it returns a date
     static LocalDate chooseTime(){
         while (true){
             try {
@@ -44,10 +47,10 @@ public class PrintWeek {
                 sc.nextLine();
             }
         }
-
-
-       // return date;
     }
+    // gets each day from the startdate to the enddate,
+    // then it calls printDay2 to get a string with all appointments from that day, with all of the days
+    // then it calls PrintChosendays and gives it a list with all the days
     public  static void PrintTimeSpan(LocalDate startDate, LocalDate endDate){
         ArrayList<String> days = new ArrayList<>();
        LocalDate date = startDate;
@@ -58,6 +61,8 @@ public class PrintWeek {
         System.out.println(startDate + ", " + endDate);
        PrintChosenDays(days);
     }
+    //splits all of the days and adds them back together, but side by side, and then prints it
+    //so you get all days side by side with all the appointments downwards
     public  static void PrintChosenDays(ArrayList<String> days){
        /* for (String i : days)
             System.out.println(i);*/

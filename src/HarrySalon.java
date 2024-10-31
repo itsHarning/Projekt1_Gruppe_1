@@ -12,12 +12,10 @@ public class HarrySalon {
     public static final BookingList bookingList = new BookingList();
 
     public static void main(String[] args) {
-        /*System.out.println("25/10\t26/10\t27/10\t");
-        System.out.println("10:30\t12:30\t11:00\t");
-        System.out.println("11:00\t14:30\t11:00\t");
-        System.out.println("16:30\t15:00\t\t");*/
         mainMenu();
     }
+    // prints all strings in options array, if logged in it prints all the extra options too,
+    // and prints log out instead of log in
     static void mainMenu(){
 
         while (true) {
@@ -35,9 +33,12 @@ public class HarrySalon {
             getInput();
         }
     }
+    //this is just what it prints when the user writes something that isn't valid
     static void wrongInput(){
         System.out.println("ikke et valid input");
     }
+    // uses a scanner in a switchcase to get input from the user
+    // and call the method corresponding to which number they wrote
     static void getInput(){
 
         while(true) {
@@ -50,10 +51,11 @@ public class HarrySalon {
                         DeleteBooking.deleteBooking(bookingList);
                         return;
                     case 3:
-                        //System.out.println("du stopper programmet");
                         PrintWeek.chooseTimeSpan();
                         return;
                     case 4:
+                        // if logged in then it logs you out else it gets input from the user via scanner
+                        // it checks if the input is the same as the password, if it is it logs you in, else it doesn't
                         if(loggedIn){
                             loggedIn = false;
                         }
@@ -66,23 +68,6 @@ public class HarrySalon {
                                 loggedIn = true;
                             } else
                                 System.out.println("Forkert");
-                        }
-                        return;
-                    case 5:
-                        if(loggedIn)
-                            System.out.println("du ser økonomi");
-                        else{
-                            wrongInput();
-                            break;
-                        }
-                        return;
-
-                    case 6:
-                        if(loggedIn)
-                            System.out.println("du gør noget andet");
-                        else{
-                            wrongInput();
-                            break;
                         }
                         return;
 
