@@ -1,5 +1,5 @@
 public class Receipt {
-    int getPrice(){
+    int getTotalPrice(){
         return 100;
     }
 }
