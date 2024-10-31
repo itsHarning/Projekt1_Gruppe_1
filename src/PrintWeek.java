@@ -56,7 +56,7 @@ public class PrintWeek {
         ArrayList<String> days = new ArrayList<>();
        LocalDate date = startDate;
        while (!date.isAfter(endDate)){
-           days.add(HarrySalon.bookingList.printDay2(date));
+           days.add(HarrySalon.bookingList.printDay(date));
            date = date.plusDays(1);
        }
         System.out.println(startDate + ", " + endDate);
