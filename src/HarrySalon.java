@@ -44,7 +44,7 @@ public class HarrySalon {
             try {
                 switch (sc.nextInt()) {
                     case 1:
-                        BookingReserver.arrangeBooking(bookingList);
+                        BookingReserver.arrangeBooking();
                         return;
                     case 2:
                         DeleteBooking.deleteBooking(bookingList);

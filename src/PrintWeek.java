@@ -16,19 +16,15 @@ public class PrintWeek {
         chooseTimeSpan();
     }
     public  static void chooseTimeSpan(){
-      /*  TestingNames.addLastNames();
+       /* TestingNames.addLastNames();
         TestingNames.randomize();
-       for(int i = 0; i <2; i++){
-            HarrySalon.bookingList.add(new Booking(TestingNames.getName(), TestingNames.getNumber(), HarrySalon.bookingList.nextAvailableTimeFrom(LocalDate.of(2024,10,29)).format(DateTimeFormatter.ofPattern(Booking.formatterString))));
-        }
         for(int i = 0; i <2; i++){
             HarrySalon.bookingList.add(new Booking(TestingNames.getName(), TestingNames.getNumber(), HarrySalon.bookingList.nextAvailableTimeFrom(LocalDate.of(2024,11,01)).format(DateTimeFormatter.ofPattern(Booking.formatterString))));
         }
         for(int i = 0; i <2; i++){
             HarrySalon.bookingList.add(new Booking(TestingNames.getName(), TestingNames.getNumber(), HarrySalon.bookingList.nextAvailableTimeFrom(LocalDate.of(2024,10,31)).format(DateTimeFormatter.ofPattern(Booking.formatterString))));
-        }
-        //PrintTimeSpan(LocalDate.of(2024,10,28), LocalDate.of(2024,11,5));
-*/
+        }*/
+
         System.out.println("Start dato: ");
         LocalDate startDate = chooseTime();
         System.out.println("Slut dato: ");
