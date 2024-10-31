@@ -13,12 +13,12 @@ public class BookingReserver {private static boolean[] bookings = new boolean[9]
             String name = scanner.nextLine();
 
             System.out.print("indtast tlf.nummer:");
-            String phonenumber = scanner.nextLine();
+            String phoneNumber = scanner.nextLine();
 
             System.out.println("Indtast venligst dato og tid:" + Booking.formatterString);
             String time = scanner.nextLine();
 
-            Booking booking = new Booking(name, phonenumber, time);
+            Booking booking = new Booking(name, phoneNumber, time);
             if (!HarrySalon.bookingList.add(booking))
             {
                 System.out.print("Denne tid er desværre allerede booket:");

@@ -420,55 +420,9 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
     // returns formatted schedule for given date.
     // TODO: implement 'global' var for opening hours.
     // TODO: make display accurate times for bookings.
-    public String printDay(LocalDate date) // todo WiP
-    {
-        StringBuilder string = new StringBuilder("\t");
-
-        string.append(date.format(DateTimeFormatter.ofPattern("dd/MM")));
-
-        if (!isShopOpen(date))
-        {
-            string.append("\n");
-            switch (date.getDayOfWeek())
-            {
-                case SATURDAY, SUNDAY: string.append("WEEKEND"); break;
-                default: string.append("VACATION");
-            }
-
-            return string.toString();
-        }
-
-        BookingList list = getBookingsFor(date);
-
-        int time;
-        for (int i = 0; i < 16; i++)
-        {
-            time = 10 + i/2;
-            string.append("\n" + time + ":");
-            if (i%2 == 0)
-            {
-                string.append("00");
-            }
-            else
-            {
-                string.append("30");
-            }
-            string.append("\t");
-
-            for (Booking booking : list)
-            {
-                if (booking.startingTime.getHour() == time) // TODO: make account for minutes.
-                {
-                    string.append(booking.customerName);
-                    break;
-                }
-            }
-        }
-        return string.toString();
-    }
 
     // returns formatted schedule for given date.
-    public String printDay2(LocalDate date) // TODO: confirm schedule format with BurgerBoy
+    public String printDay(LocalDate date) // TODO: confirm schedule format with BurgerBoy
     {
         StringBuilder string = new StringBuilder();
 
@@ -491,10 +445,11 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         }
 
         BookingList list = getBookingsFor(date); // get bookings for given date.
-        LocalDateTime start = date.atTime(10, 0); // set up iterator 
+        LocalDateTime start = date.atTime(10, 0); // set up iterator
 
-        for (Booking booking : list) // TODO: make pretty and comment.
+        for (Booking booking : list) // add each booking to the schedule.
         {
+            // if substantial time free before booking, add the empty timespan to schedule.
             if (start.until(booking.startingTime, ChronoUnit.MINUTES) > 10)
             {
                 string.append("\n");
@@ -502,20 +457,24 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
                 string.append("-");
                 string.append(booking.startingTime.format(DateTimeFormatter.ofPattern("HH:mm")));
             }
+
+            // add timespan for booking to schedule.
             string.append("\n");
             string.append(booking.startingTime.format(DateTimeFormatter.ofPattern("HH:mm")));
             string.append("-");
             string.append(booking.endTime.plusMinutes(1).format(DateTimeFormatter.ofPattern("HH:mm")));
             string.append(" ");
-            if (HarrySalon.loggedIn)
+            if (HarrySalon.loggedIn) // if logged in, insert price for booking after timespan.
             {
                 string.append(booking.receipt.getTotalPrice());
                 string.append(",-");
                 string.append("\t");
             }
-            string.append(booking.customerName);
-            start = booking.endTime.plusMinutes(1);
+            string.append(booking.customerName); // add costumer name after booking timespan.
+            start = booking.endTime.plusMinutes(1); // iterate start of next timespan to just after currently handled booking.
         }
+
+        // add final timespan to closing hour to schedule.
         string.append("\n");
         string.append(start.format(DateTimeFormatter.ofPattern("HH:mm")));
         string.append("-");
