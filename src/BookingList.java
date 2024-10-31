@@ -464,6 +464,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         StringBuilder string = new StringBuilder("       ");
 
         string.append(date.format(DateTimeFormatter.ofPattern("dd/MM")));
+        string.append(date.getDayOfWeek().name());
 
         if (!isShopOpen(date))
         {
@@ -495,6 +496,9 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
             string.append(booking.endTime.plusMinutes(1).format(DateTimeFormatter.ofPattern("HH:mm")));
             string.append(" ");
             string.append(booking.customerName);
+            string.append(" ");
+            string.append(booking.receipt.getTotalPrice());
+            string.append(",-");
             start = booking.endTime.plusMinutes(1);
         }
         string.append("\n");
