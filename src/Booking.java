@@ -11,7 +11,7 @@ public class Booking implements Comparable<Booking> {
     LocalDateTime startingTime;
     LocalDateTime endTime;
     static String formatterString = "yyyy MM dd HH:mm";
-    DateTimeFormatter Formatter = DateTimeFormatter.ofPattern(formatterString);
+    static DateTimeFormatter Formatter = DateTimeFormatter.ofPattern(formatterString);
     Receipt receipt = new Receipt(); // receipt class doesn't have much of a function yet
 
     Booking(String name, String phoneNum, String startingTime){
