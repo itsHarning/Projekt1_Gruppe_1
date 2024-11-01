@@ -9,6 +9,7 @@ import java.util.Scanner;
 public class PrintWeek {
 
     static Scanner sc = new Scanner(System.in);
+    static boolean quitToMenu;
 
     public static void main(String[] args) {
         chooseTimeSpan();
@@ -25,13 +26,18 @@ public class PrintWeek {
         for(int i = 0; i <2; i++){
             HarrySalon.bookingList.add(new Booking(TestingNames.getName(), TestingNames.getNumber(), HarrySalon.bookingList.nextAvailableTimeFrom(LocalDate.of(2024,10,31)).format(DateTimeFormatter.ofPattern(Booking.formatterString))));
         }*/
-
-        System.out.println("Start dato: ");
+        System.out.println("du kan altid trykke q eller 0 for at gå tilbage til menuen");
+        System.out.println("Start dato (yyyy MM dd): ");
         LocalDate startDate = chooseTime();
-        System.out.println("Slut dato: ");
-        LocalDate endDate = chooseTime();
-
-        PrintTimeSpan(startDate, endDate);
+        LocalDate endDate = LocalDate.now();
+        if (!quitToMenu) {
+            System.out.println("Slut dato (yyyy MM dd): ");
+            endDate = chooseTime();
+        }
+        if (!quitToMenu)
+            PrintTimeSpan(startDate, endDate);
+        else
+            quitToMenu = false;
     }
     //it uses a scanner to get input from the user then it converts it to a date
     // it uses try and catch to make sure they write a date in the correct format, then it returns a date
@@ -40,6 +46,10 @@ public class PrintWeek {
             try {
                 DateTimeFormatter Formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
                 String temp = sc.nextLine();
+                if (temp.equals("q") ||temp.equals("0")){
+                    quitToMenu = true;
+                    return LocalDate.now();
+                }
                 LocalDate date = LocalDate.parse(temp, Formatter);
                 return date;
             }
@@ -96,5 +106,7 @@ public class PrintWeek {
         for (String i : Week){
             System.out.println(i);
         }
+        System.out.println("Tryk Enter: Gå Tilbage Til Menuen");
+        sc.nextLine();
     }
 }
