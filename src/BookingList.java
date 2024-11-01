@@ -1,13 +1,20 @@
+
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class BookingList extends ArrayList<Booking> implements Serializable // TODO: serializable to save to file.
 {
-    private final ArrayList<LocalDate> vacationDays;
+    private final ArrayList<LocalDate> vacationDays; // repurposed as Holidays.
 
     // adds given date to vacationDays, ensuring not to add duplicate dates or overlap Bookings.
     // returns false if attempted to add date with registered bookings.
@@ -73,7 +80,6 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
     }
 
     // Checks if time coincides with weekend, vacation or closing hours.
-    // TODO: implement 'global' var for opening hours.
     public boolean isShopOpen(LocalDateTime time)
     {
         if (isWeekend(time.toLocalDate())) return false; // checks if weekend.
@@ -106,7 +112,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         if (isWeekend(date)) return true;
         for (LocalDate vDay : vacationDays) // checks if reserved vacation day.
         {
-            if (vDay.isEqual(date))
+            if (vDay.getDayOfYear() == date.getDayOfYear())
             {
                 return true;
             }
@@ -117,7 +123,16 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
 
 
     // constructor starts with empty lists.
-    public BookingList(){vacationDays = new ArrayList<>();}
+    public BookingList()
+    {
+        vacationDays = new ArrayList<>();
+        vacationDays.add(LocalDate.of(2000,  1,  1));
+        vacationDays.add(LocalDate.of(2000,  6,  5));
+        vacationDays.add(LocalDate.of(2000, 12, 24));
+        vacationDays.add(LocalDate.of(2000, 12, 25));
+        vacationDays.add(LocalDate.of(2000, 12, 26));
+        vacationDays.add(LocalDate.of(2000, 12, 31));
+    }
 
     // adds booking to list if it does not coincide with other bookings or time off.
     // returns false if booking was NOT added!
@@ -158,7 +173,6 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
     public void add(int index, Booking booking){}
     public void addFirst(Booking booking){}
     public void addLast(Booking booking){}
-
 
     // removes ALL Bookings occurring on given date.
     public boolean clearDate(LocalDate date)
@@ -211,7 +225,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
 
     // Return list of each booking occurring on given date
     public BookingList getBookingsFor(LocalDate date)
-    { // TODO: could be done as getBookingsFor(date, date), though this has fewer checks.
+    { // note: could be done as getBookingsFor(date, date), though this has fewer checks than that method.
         BookingList list = new BookingList();
 
         // Checks each booking if on given date and adds those to return value.
@@ -221,7 +235,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
             {
                 list.add(booking);
             }
-            else if (list.size() > 0) // TODO: going through bookings backwards might be faster after having completed several bookings.
+            else if (list.size() > 0) // note: going through bookings backwards might be faster after having completed several bookings.
             { // OBS: this depends on the archive being sorted, breaks out of loop when past given date to save time.
                 break;
             }
@@ -254,7 +268,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
             {
                 list.add(booking);
             }
-            else if (list.size() > 0) // TODO: going through bookings backwards might be faster after having completed several bookings.
+            else if (list.size() > 0) // note: going through bookings backwards might be faster after having completed several bookings.
             { // OBS: this depends on the archive being sorted, breaks out of loop when past given date to save time.
                 break;
             }
@@ -302,9 +316,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
 
     // Checks given day whether there are available timeslots for a new booking,
     // Returns the all available time-spans as startTime/endTime pairs in array, or empty array if none exists for the date.
-    // TODO: implement 'global' var for opening hours.
-    // TODO: take account of different lengths of booking
-    public LocalDateTime[] getAvailableTimesFor(LocalDate date)
+    public LocalDateTime[] getAvailableTimesFor(LocalDate date) // TODO: take account of different lengths of booking
     {
         // Quick return if date is not a workday.
         if (!isShopOpen(date)) return new LocalDateTime[0];
@@ -339,8 +351,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
     // Checks given time whether it is available for a new booking,
     // Returns same time as given, if available, or the soonest available time thereafter.
     // Otherwise, returns null if none exists for the date.
-    // TODO: implement 'global' var for opening hours.
-    public LocalDateTime hasTimeAt(LocalDateTime time)
+    public LocalDateTime hasTimeAt(LocalDateTime time) // TODO: more explanation comments
     {
         // ensure time is within opening hours.
         if (time.getHour() < 10 || time.getHour() > 17) time = time.toLocalDate().atTime(10, 0);
@@ -349,12 +360,11 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         if (time.isBefore(LocalDateTime.now().plusMinutes(15))) time = LocalDateTime.now().plusMinutes(15); // add 30 minutes to not make booking right THIS instant.
 
         // Quick return if time is not on a work-day.
-        if (!isShopOpen(time)) return null; // TODO: show error-screen?
+        if (!isShopOpen(time)) return null;
 
         LocalDateTime[] timeList = getAvailableTimesFor(time.toLocalDate());
 
-        // if (timeList.length == 0) return null; // Quick return if there are no available timeslots on given date.
-        for (int i = 0; i < timeList.length; i += 2) // TODO: more explanation comments
+        for (int i = 0; i < timeList.length; i += 2)
         {
             if (time.isBefore(timeList[i+1]) && (time.isAfter(timeList[i]) || time.isEqual(timeList[i])))
             {
@@ -384,7 +394,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         while (soonestTime == null) // checks consecutive days for the soonest available time, so long as none has been found.
         {
             addedDays++;
-            soonestTime = hasTimeAt(LocalDate.now().plusDays(addedDays));
+            soonestTime = hasTimeAt(time.toLocalDate().plusDays(addedDays));
         }
 
         return soonestTime;
@@ -402,88 +412,62 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         return nextAvailableTimeFrom(LocalDateTime.now());
     }
 
-    // returns the soonest available time for a booking from REAL-TIME NOW in string format.
-    public String nextAvailableTime(String format) // TODO: should probably have a static 'toStringFormat' in Booking itself
-    {
-        return nextAvailableTime().format(DateTimeFormatter.ofPattern(format));
-    }
-
     // returns formatted schedule for given date.
-    // TODO: implement 'global' var for opening hours.
-    // TODO: make display accurate times for bookings.
-    public String printDay(LocalDate date) // todo WiP
+    public String printDay(LocalDate date) // TODO: beautify
     {
-        StringBuilder string = new StringBuilder("\t");
+        StringBuilder string = new StringBuilder();
 
-        string.append(date.format(DateTimeFormatter.ofPattern("dd/MM")));
-
-        if (!isShopOpen(date))
-        {
-            string.append("\n");
-            switch (date.getDayOfWeek())
-            {
-                case SATURDAY, SUNDAY: string.append("WEEKEND"); break;
-                default: string.append("VACATION");
-            }
-
-            return string.toString();
-        }
-
-        BookingList list = getBookingsFor(date);
-
-        int time;
-        for (int i = 0; i < 16; i++)
-        {
-            time = 10 + i/2;
-            string.append("\n" + time + ":");
-            if (i%2 == 0)
-            {
-                string.append("00");
-            }
-            else
-            {
-                string.append("30");
-            }
-            string.append("\t");
-
-            for (Booking booking : list)
-            {
-                if (booking.startingTime.getHour() == time) // TODO: make account for minutes.
-                {
-                    string.append(booking.customerName);
-                    break;
-                }
-            }
-        }
-        return string.toString();
-    }
-
-    // returns formatted schedule for given date.
-    public String printDay2(LocalDate date) // TODO: confirm schedule format with BurgerBoy
-    {
-        StringBuilder string = new StringBuilder("    ");
-
+        // Write header for given date as date and name of day.
+        string.append("     ");
         string.append(date.format(DateTimeFormatter.ofPattern("dd/MM")));
         string.append(" ");
         string.append(date.getDayOfWeek().name());
 
-        if (!isShopOpen(date))
+        if (!isShopOpen(date)) // if the shop is not open on the date, note whether holiday or weekend.
         {
             string.append("\n\n");
             switch (date.getDayOfWeek())
             {
-                case SATURDAY, SUNDAY: string.append("WEEKEND"); break;
-                default: string.append("VACATION");
+                case SATURDAY, SUNDAY: string.append("     WEEKEND"); break;
+                default: string.append("     HELLIGDAG");
             }
 
-            return string.toString();
+            return string.toString(); // return without looking at potential bookings.
         }
 
-        BookingList list = getBookingsFor(date);
-        LocalDateTime start = date.atTime(10, 0);
+        BookingList list = getBookingsFor(date); // get bookings for given date.
+        LocalDateTime start = date.atTime(10, 0); // set up iterator
 
-        for (Booking booking : list) // TODO: make pretty and comment.
+        // unique print for workdays without any bookings.
+        if (list.isEmpty())
         {
+            string.append("\n\n");
+            string.append("     INGEN AFTALER");
+
+            return string.toString(); // return without looking at potential bookings.
+        }
+
+        // determine the longest name of a costumer to apply as width of column.
+        int maxLength = 8;
+        for (Booking booking : list)
+        {
+            if (booking.customerName.length() > maxLength) maxLength = booking.customerName.length();
+        }
+
+        // adds corresponding names to schedule's columns.
+        string.append("\n    TID      KUNDENAVN");
+        if (HarrySalon.loggedIn) // only add column name for cost if logged in, as they are not added unless so.
+        {
+            for (int i = 10; i < maxLength; i++) // add offset of column name, based on 'name'-column width.
+            {
+                string.append(" ");
+            }
+            string.append(" PRIS");
+        }
+
+        for (Booking booking : list) // add each booking to the schedule.
+        {
+            // if substantial time free before booking, add the empty timespan to schedule.
             if (start.until(booking.startingTime, ChronoUnit.MINUTES) > 10)
             {
                 string.append("\n");
@@ -491,17 +475,30 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
                 string.append("-");
                 string.append(booking.startingTime.format(DateTimeFormatter.ofPattern("HH:mm")));
             }
+
+            // add timespan for booking to schedule.
             string.append("\n");
             string.append(booking.startingTime.format(DateTimeFormatter.ofPattern("HH:mm")));
             string.append("-");
             string.append(booking.endTime.plusMinutes(1).format(DateTimeFormatter.ofPattern("HH:mm")));
-            string.append(" ");
-            string.append(booking.receipt.getTotalPrice());
-            string.append(",-");
-            string.append("\t");
-            string.append(booking.customerName);
-            start = booking.endTime.plusMinutes(1);
+            string.append("  ");
+
+            // enforce column width by adding spaces after shorter names.
+            StringBuilder normalName = new StringBuilder(booking.customerName);
+            while (normalName.length() <= maxLength) normalName.append(" ");
+
+            string.append(normalName); // add costumer name after booking timespan.
+
+            if (HarrySalon.loggedIn) // if logged in, insert price for booking after timespan.
+            {
+                string.append(booking.receipt.getTotalPrice());
+                string.append(",-");
+            }
+
+            start = booking.endTime.plusMinutes(1); // iterate start of next timespan to just after currently handled booking.
         }
+
+        // add final timespan to closing hour to schedule.
         string.append("\n");
         string.append(start.format(DateTimeFormatter.ofPattern("HH:mm")));
         string.append("-");
@@ -522,12 +519,48 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         StringBuilder string = new StringBuilder();
 
         string.append(list.size());
-        string.append(" future bookings. ");
+        string.append(" fremtidige bookinger. ");
         string.append((size() - list.size()));
-        string.append(" completed.");
+        string.append(" tidligere bookinger. ");
         string.append(this.size());
         string.append(" total.");
 
         return string.toString();
+    }
+
+    public void saveTo() // TODO: comments
+    {
+        ArrayList<String> list = new ArrayList<>();
+
+        for (Booking booking : this)
+        {
+            list.add(booking.customerName + "\n" + booking.phoneNumber + "\n" + booking.startingTime.format(DateTimeFormatter.ofPattern(Booking.formatterString)));
+        }
+
+        Path f = Paths.get("BookingArchive.txt");
+
+        try
+        {
+            Files.write(f, list);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void loadFrom() // TODO: comments
+    {
+        try
+        {
+            Scanner scanner = new Scanner(new File("BookingArchive.txt"));
+            this.clear();
+
+            while (scanner.hasNextLine())
+            {
+                this.add(new Booking(scanner.nextLine(), scanner.nextLine(), scanner.nextLine()));
+            }
+        }
+        catch (Exception e) {return;} // let the bookinglist be if no file saved.
     }
 }
