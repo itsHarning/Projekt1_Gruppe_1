@@ -19,10 +19,13 @@ public class DeleteBooking
 
         System.out.print("Indtast telefonnummer associeret med den booking der ønskes slettet: ");
         String phonenumber = scanner.nextLine();
-        Booking booking = bookings.getBookingNumber(phonenumber);
-        bookings.remove(booking);
-        {
-            System.out.println("Næste booking med dette nummer er nu slettet");
+        if(!phonenumber.equals("q") && !phonenumber.equals("0")){
+            Booking booking = bookings.getBookingNumber(phonenumber);
+            bookings.remove(booking);
+            {
+                System.out.println("Næste booking med dette nummer er nu slettet");
+            }
         }
+
     }
 }
