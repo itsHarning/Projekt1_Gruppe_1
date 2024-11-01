@@ -10,6 +10,8 @@ public class DeleteBooking
         deleteBooking(dummy);
     }
 
+
+    //Delete booking by a given phone number, next reservation will be deleted.
     public static void deleteBooking(BookingList bookings)
     {
         Scanner scanner = new Scanner(System.in);
