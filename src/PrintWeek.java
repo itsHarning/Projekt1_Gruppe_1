@@ -106,7 +106,7 @@ public class PrintWeek {
         for (String i : Week){
             System.out.println(i);
         }
-        System.out.println("Tryk Enter: Gå Tilbage Til Menuen");
+        System.out.println("Tryk Enter for at Gå Tilbage Til Menuen");
         sc.nextLine();
     }
 }

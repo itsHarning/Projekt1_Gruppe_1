@@ -13,8 +13,11 @@ public class BookingReserver {
     {
         Scanner scanner = new Scanner(System.in);
         try {
+            System.out.println("du kan altid trykke q eller 0 for at gå tilbage til menuen");
             System.out.println("Indtast venligst dato og tid: " + Booking.formatterString);
             String time = scanner.nextLine();
+            if (time.equals("q")|| time.equals("0"))
+                return;
             LocalDateTime wantTime = LocalDateTime.parse(time, Booking.formatter);
             LocalDateTime suggestedTime = HarrySalon.bookingList.hasTimeAt(wantTime);
 
@@ -36,10 +39,12 @@ public class BookingReserver {
 
             System.out.print("Indtast kundenavn: ");
             String name = scanner.nextLine();
-
+            if (name.equals("q")|| name.equals("0"))
+                return;
             System.out.print("Indtast tlf.nummer: ");
             String phoneNumber = scanner.nextLine();
-
+            if (phoneNumber.equals("q")|| phoneNumber.equals("0"))
+                return;
             Booking booking = new Booking(name, phoneNumber, time);
             HarrySalon.bookingList.add(booking); // adds a new booking to bookinglist
 
