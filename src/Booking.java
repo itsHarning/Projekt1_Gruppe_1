@@ -1,4 +1,3 @@
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -11,14 +10,14 @@ public class Booking implements Comparable<Booking> {
     LocalDateTime startingTime;
     LocalDateTime endTime;
     static String formatterString = "yyyy MM dd HH:mm";
-    DateTimeFormatter Formatter = DateTimeFormatter.ofPattern(formatterString);
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatterString);
     Receipt receipt = new Receipt(); // receipt class doesn't have much of a function yet
 
     Booking(String name, String phoneNum, String startingTime){
         customerName = name;
         phoneNumber = phoneNum;
         this.bookedMinutes = 60;
-        this.startingTime = LocalDateTime.parse(startingTime, Formatter); // converts from a string to LocalDateTime
+        this.startingTime = LocalDateTime.parse(startingTime, formatter); // converts from a string to LocalDateTime
         endTime = this.startingTime.plusMinutes(bookedMinutes-1); // adds the booked minutes to the start time
     }
 
@@ -37,11 +36,11 @@ public class Booking implements Comparable<Booking> {
 
     public void printBooking() {
         System.out.println("navn: "+customerName+"\ttlf: "+phoneNumber);
-        Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         System.out.print("dato: "+startingTime);
-        Formatter = DateTimeFormatter.ofPattern("HH:mm");
-        System.out.println("\ttid: "+startingTime.format(Formatter)+"-"+(endTime.plusMinutes(1)).format(Formatter));
-        Formatter = DateTimeFormatter.ofPattern(formatterString);
+        formatter = DateTimeFormatter.ofPattern("HH:mm");
+        System.out.println("\ttid: "+startingTime.format(formatter)+"-"+(endTime.plusMinutes(1)).format(formatter));
+        formatter = DateTimeFormatter.ofPattern(formatterString);
     }
 
     // Checks time between this and another Booking.
