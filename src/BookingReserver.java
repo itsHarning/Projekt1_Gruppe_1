@@ -10,13 +10,13 @@ public class BookingReserver {
     }
 
     public static void arrangeBooking() // the class functionality
-    {
+    {   
         Scanner scanner = new Scanner(System.in);
         try {
             System.out.println("du kan altid trykke q eller 0 for at gå tilbage til menuen");
             System.out.println("Indtast venligst dato og tid: " + Booking.formatterString);
             String time = scanner.nextLine();
-            if (time.equals("q")|| time.equals("0"))
+            if (time.equals("q")|| time.equals("0")) //adds the option to go back to menu
                 return;
             LocalDateTime wantTime = LocalDateTime.parse(time, Booking.formatter);
             LocalDateTime suggestedTime = HarrySalon.bookingList.hasTimeAt(wantTime);
