@@ -31,6 +31,7 @@ public class BookingReserver {
                 System.out.println("Den tidligste tid derefter vil være: " + suggestedTime.format(DateTimeFormatter.ofPattern(Booking.formatterString)));
 
                 arrangeBooking(); //attempts a new booking from the beginning
+                return;
             }
 
             System.out.print("Indtast kundenavn: ");
