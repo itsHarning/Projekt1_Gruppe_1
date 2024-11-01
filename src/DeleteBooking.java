@@ -12,6 +12,7 @@ public class DeleteBooking
 
 
     //Delete booking by a given phone number, next reservation will be deleted.
+    // By Typing q instead of phone number you will go back to menu
     public static void deleteBooking(BookingList bookings)
     {
         Scanner scanner = new Scanner(System.in);
