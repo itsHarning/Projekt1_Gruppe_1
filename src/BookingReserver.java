@@ -15,7 +15,7 @@ public class BookingReserver {
         try {
             System.out.println("Indtast venligst dato og tid: " + Booking.formatterString);
             String time = scanner.nextLine();
-            LocalDateTime wantTime = LocalDateTime.parse(time);
+            LocalDateTime wantTime = LocalDateTime.parse(time, Booking.formatter);
             LocalDateTime suggestedTime = HarrySalon.bookingList.hasTimeAt(wantTime);
 
             if (!suggestedTime.equals(wantTime)) // TODO: testing
