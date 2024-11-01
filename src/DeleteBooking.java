@@ -16,6 +16,7 @@ public class DeleteBooking
     public static void deleteBooking(BookingList bookings)
     {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("du kan altid trykke q eller 0 for at gå tilbage til menuen");
         System.out.println("Slet booking.");
 
         System.out.print("Indtast telefonnummer associeret med den booking der ønskes slettet: ");
