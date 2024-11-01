@@ -9,7 +9,7 @@ public class BookingReserver {
         BookingList dummy = new BookingList();
     }
 
-    public static void arrangeBooking()
+    public static void arrangeBooking() // the class functionality
     {
         Scanner scanner = new Scanner(System.in);
         try {
@@ -18,7 +18,7 @@ public class BookingReserver {
             LocalDateTime wantTime = LocalDateTime.parse(time, Booking.formatter);
             LocalDateTime suggestedTime = HarrySalon.bookingList.hasTimeAt(wantTime);
 
-            if (!suggestedTime.equals(wantTime)) // TODO: testing
+            if (!suggestedTime.equals(wantTime)) // checks if time is not available
             {
                 if (HarrySalon.bookingList.isShopOpen(wantTime))
                 {
@@ -26,11 +26,11 @@ public class BookingReserver {
                 }
                 else
                 {
-                    System.out.print("Denne tid er der desværre lukket. ");
+                    System.out.print("Denne tid er der desværre lukket i salonen. ");
                 }
                 System.out.println("Den tidligste tid derefter vil være: " + suggestedTime.format(DateTimeFormatter.ofPattern(Booking.formatterString)));
 
-                arrangeBooking();
+                arrangeBooking(); //attempts a new booking from the beginning
             }
 
             System.out.print("Indtast kundenavn: ");
@@ -40,7 +40,7 @@ public class BookingReserver {
             String phoneNumber = scanner.nextLine();
 
             Booking booking = new Booking(name, phoneNumber, time);
-            HarrySalon.bookingList.add(booking);
+            HarrySalon.bookingList.add(booking); // adds a new booking to bookinglist
 
         } catch (Exception e) {  // if there is any errors it would print the error (like non-valid input)
             System.out.println("Ugyldigt formatteret dato!");
