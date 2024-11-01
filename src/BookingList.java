@@ -1,18 +1,18 @@
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class BookingList extends ArrayList<Booking> implements Serializable // TODO: serializable to save to file.
+public class BookingList extends ArrayList<Booking>
 {
     private final ArrayList<LocalDate> vacationDays; // repurposed as Holidays.
 
@@ -20,18 +20,30 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
     // returns false if attempted to add date with registered bookings.
     public boolean addVacation(LocalDate date)
     {
-        for (Booking booking : this) // checks if there exists bookings on given date. TODO: faster if skipping bookings on the same date.
+        for (Booking booking : this) // checks if there exists bookings on given date.
         {
             if (booking.startingTime.toLocalDate().isEqual(date)) return false;
         }
+
         vacationDays.removeIf(d -> d.isEqual(date)); // this is the simplest way to avoid duplicate dates.
+
+        /* explanation of 'Predicate'
+        for (LocalDate d : vacationDays)
+        {
+            if (d.isEqual(date));
+            {
+                vacationDays.remove(d);
+            }
+        }
+         */
+
         vacationDays.add(date);
         return true;
     }
 
     // adds multiple dates as INDIVIDUAL vacation days.
     // returns false if any of given days was not registered successfully.
-    public boolean addVacation(LocalDate... date)
+    public boolean addVacation(LocalDate ... date)
     {
         boolean intersectsBooking = false;
 
@@ -180,8 +192,35 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         return this.removeIf(d -> d.startingTime.toLocalDate().isEqual(date));
     }
 
+    // returns the booking that overlaps given time, or null if none exists.
+    public Booking getBooking(LocalDateTime time)
+    {
+        for (Booking booking : this)
+        {
+            if (booking.startingTime.isBefore(time) && booking.endTime.isAfter(time))
+            {
+                return booking;
+            }
+        }
+        return null;
+    }
+
+    // Accounts for arguments of (presumably) formatted string.
+    public Booking getBooking(String time)
+    {
+        try
+        {
+            return getBooking(LocalDateTime.parse(time));
+        }
+        catch (DateTimeParseException e)
+        {
+            System.out.println("Fejl i dato-format!");
+            return null;
+        }
+    }
+
     // returns the next planned booking for a given customer, or null if none exists within a year.
-    public Booking getBooking(String customerName)
+    public Booking getBookingName(String customerName)
     {
         BookingList list = getBookingsFor(LocalDateTime.now(), LocalDateTime.now().plusYears(1));
 
@@ -203,19 +242,6 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         for (Booking booking : list)
         {
             if (booking.phoneNumber.equals(phoneNumber))
-            {
-                return booking;
-            }
-        }
-        return null;
-    }
-
-    // returns the booking that overlaps given time, or null if none exists.
-    public Booking getBooking(LocalDateTime dateTime)
-    {
-        for (Booking booking : this)
-        {
-            if (booking.startingTime.isBefore(dateTime) && booking.endTime.isAfter(dateTime))
             {
                 return booking;
             }
@@ -251,6 +277,20 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         return getBookingsFor(date.toLocalDate());
     }
 
+    // Accounts for arguments of (presumably) formatted string.
+    public BookingList getBookingsFor(String date)
+    {
+        try
+        {
+            return getBookingsFor(LocalDate.parse(date));
+        }
+        catch (DateTimeParseException e)
+        {
+            System.out.println("Fejl i dato-format!");
+            return new BookingList();
+        }
+    }
+
     // Return list of each booking occurring on & between the given dates.
     public BookingList getBookingsFor(LocalDate startDate, LocalDate endDate)
     {
@@ -283,8 +323,6 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
     {
         return getBookingsFor(startDate.toLocalDate(), endDate.toLocalDate());
     }
-
-    // TODO: getters that take formatted strings.
 
     public BookingList getFutureBookings()
     {
@@ -379,10 +417,31 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         return null;
     }
 
-    // Accounts for arguments of 'LocalDate', assuming soonest possible time for given date.
+    // Accounts for arguments of 'LocalDate'.
     public LocalDateTime hasTimeAt(LocalDate date)
     {
         return hasTimeAt(date.atStartOfDay());
+    }
+
+    // Accounts for arguments of (presumably) formatted string, with or without time-of-day.
+    public LocalDateTime hasTimeAt(String time)
+    {
+        try
+        {
+            return hasTimeAt(LocalDateTime.parse(time));
+        }
+        catch (DateTimeParseException e)
+        {
+            try
+            {
+                return hasTimeAt(LocalDate.parse(time));
+            }
+            catch (DateTimeParseException e2)
+            {
+                System.out.println("Fejl i dato-format!");
+                return null;
+            }
+        }
     }
 
     // returns the soonest available time for a booking from after a given time, even if first on a later date.
@@ -404,6 +463,27 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
     public LocalDateTime nextAvailableTimeFrom(LocalDate date)
     {
         return nextAvailableTimeFrom(date.atStartOfDay());
+    }
+
+    // Accounts for arguments of (presumably) formatted string, with or without time-of-day.
+    public LocalDateTime nextAvailableTimeFrom(String time)
+    {
+        try
+        {
+            return nextAvailableTimeFrom(LocalDateTime.parse(time));
+        }
+        catch (DateTimeParseException e)
+        {
+            try
+            {
+                return nextAvailableTimeFrom(LocalDate.parse(time));
+            }
+            catch (DateTimeParseException e2)
+            {
+                System.out.println("Fejl i dato-format!");
+                return null;
+            }
+        }
     }
 
     // returns the soonest available time for a booking from REAL-TIME NOW, even if first on a later date.
@@ -513,6 +593,7 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         return printDay(LocalDate.now());
     }
 
+    // prints amount of bookkings in list, amount planned and in passed.
     public String toString()
     {
         BookingList list = getFutureBookings();
@@ -528,20 +609,21 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         return string.toString();
     }
 
-    public void saveTo() // TODO: comments
+    // stores bookinglist as new text-file in system.
+    public void saveTo()
     {
         ArrayList<String> list = new ArrayList<>();
 
-        for (Booking booking : this)
+        for (Booking booking : this) // create list of formatted crucial info for each booking.
         {
             list.add(booking.customerName + "\n" + booking.phoneNumber + "\n" + booking.startingTime.format(DateTimeFormatter.ofPattern(Booking.formatterString)));
         }
 
-        Path f = Paths.get("BookingArchive.txt");
+        Path f = Paths.get("BookingArchive.txt"); // open file for storing data.
 
         try
         {
-            Files.write(f, list);
+            Files.write(f, list); // write/overwrite file in system.
         }
         catch (IOException e)
         {
@@ -549,18 +631,19 @@ public class BookingList extends ArrayList<Booking> implements Serializable // T
         }
     }
 
-    public void loadFrom() // TODO: comments
+    // loads bookings to bookinglist from file in system, or leaves it empty if no file found.
+    public void loadFrom()
     {
-        try
+        try // try to open file.
         {
             Scanner scanner = new Scanner(new File("BookingArchive.txt"));
-            this.clear();
+            this.clear(); // ensure this list is empty before loading from file
 
-            while (scanner.hasNextLine())
+            while (scanner.hasNextLine()) // file is structured as crucial info for each booking in order.
             {
                 this.add(new Booking(scanner.nextLine(), scanner.nextLine(), scanner.nextLine()));
             }
         }
-        catch (Exception e) {return;} // let the bookinglist be if no file saved.
+        catch (Exception e) {return;} // let this bookinglist be if no file saved.
     }
 }
