@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class HarrySalon {
     static Scanner sc = new Scanner(System.in);
-    static String[] options = {"Book Tid", "Slet Booking", "Se Bookings", "Log Ind"};
+    static String[] options = {"Stop Programmet", "Book Tid", "Slet Booking", "Se Bookings", "Log Ind"};
     static String[] extraOptions = {"Log Ud"};
     static String password = "HairyHarry";
     static boolean loggedIn = false;
@@ -43,13 +43,13 @@ public class HarrySalon {
             System.out.println();
             if (loggedIn) {
                 for (int i = 0; i < options.length - 1; i++)
-                    System.out.println("tryk " + (i + 1) + ": " + options[i]);
+                    System.out.println("tryk " + (i) + ": " + options[i]);
                 for (int i = 0; i < extraOptions.length; i++)
-                    System.out.println("tryk " + (i + options.length) + ": " + extraOptions[i]);
+                    System.out.println("tryk " + (i + options.length - 1) + ": " + extraOptions[i]);
             }
             else {
                 for (int i = 0; i < options.length; i++)
-                    System.out.println("tryk " + (i + 1) + ": " + options[i]);
+                    System.out.println("tryk " + (i) + ": " + options[i]);
             }
             run = getInput();
         }
