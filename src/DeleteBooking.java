@@ -19,5 +19,8 @@ public class DeleteBooking
         String phonenumber = scanner.nextLine();
         Booking booking = bookings.getBookingNumber(phonenumber);
         bookings.remove(booking);
+        {
+            System.out.println("Næste booking med dette nummer er nu slettet");
+        }
     }
 }
