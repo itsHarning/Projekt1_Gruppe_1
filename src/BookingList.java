@@ -1,6 +1,5 @@
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -80,7 +79,6 @@ public class BookingList extends ArrayList<Booking>
     public void add(int index, Booking booking){}
     public void addFirst(Booking booking){}
     public void addLast(Booking booking){}
-
 
 // removers
 
@@ -461,105 +459,176 @@ public class BookingList extends ArrayList<Booking>
 
 // methods for formatting strings
 
-    // returns formatted schedule for given date.
-    public String formatDay(LocalDate date) // TODO: beautify
+    // returns formatted schedule for TODAY as string.
+    public String formatDay()
+    {
+        return formatDay(LocalDate.now());
+    }
+
+    // returns formatted schedule for given date as string.
+    public String formatDay(LocalDate date)
     {
         StringBuilder string = new StringBuilder();
 
-        // Write header for given date as date and name of day.
-        string.append("     ");
-        string.append(date.format(DateTimeFormatter.ofPattern("dd/MM")));
-        string.append(" ");
-        string.append(date.getDayOfWeek().name());
+        string.append("     "); // tabulate
+        string.append(formatHeader(date)); // add date header
 
         if (!isShopOpen(date)) // if the shop is not open on the date, note whether holiday or weekend.
         {
-            string.append("\n\n");
-            switch (date.getDayOfWeek())
-            {
-                case SATURDAY, SUNDAY: string.append("     WEEKEND"); break;
-                default: string.append("     HELLIGDAG");
-            }
+            string.append("\n\n     "); // tabulate
+            string.append(getClosedLabel(date));
 
             return string.toString(); // return without looking at potential bookings.
         }
 
         BookingList list = getBookingsFor(date); // get bookings for given date.
-        LocalDateTime start = date.atTime(10, 0); // set up iterator
 
         // unique print for workdays without any bookings.
         if (list.isEmpty())
         {
-            string.append("\n\n");
-            string.append("     INGEN AFTALER");
+            string.append("\n\n     ");
+            string.append("INGEN AFTALER");
 
             return string.toString(); // return without looking at potential bookings.
         }
 
         // determine the longest name of a costumer to apply as width of column.
-        int maxLength = 8;
-        for (Booking booking : list)
+        int columnWidth = getLongestNameLength(list);
+
+        // adds corresponding titles to schedule's columns.
+        string.append(formatColumnTitles(columnWidth));
+
+        // add scheduled times with potential corresponding costumer names.
+        string.append(formatBookings(list, columnWidth));
+
+        return string.toString();
+    }
+
+    // formats day header as dd/MM name-of-day.
+    private String formatHeader(LocalDate date)
+    {
+        String string = date.format(DateTimeFormatter.ofPattern("dd/MM"));
+        string += " ";
+
+        // add danish name of day.
+        string += switch (date.getDayOfWeek())
         {
-            if (booking.customerName.length() > maxLength) maxLength = booking.customerName.length();
-        }
+            case MONDAY    -> "MANDAG";
+            case TUESDAY   -> "TIRSDAG";
+            case WEDNESDAY -> "ONSDAG";
+            case THURSDAY  -> "TORSDAG";
+            case FRIDAY    -> "FREDAG";
+            case SATURDAY  -> "LØRDAG";
+            case SUNDAY    -> "SØNDAG";
+        };
+
+        return string;
+    }
+
+    // formats column titles to match with column width.
+    private String formatColumnTitles(int columnWidth)
+    {
+        StringBuilder string = new StringBuilder();
 
         // adds corresponding names to schedule's columns.
         string.append("\n    TID      KUNDENAVN");
         if (HarrySalon.loggedIn) // only add column name for cost if logged in, as they are not added unless so.
         {
-            for (int i = 10; i < maxLength; i++) // add offset of column name, based on 'name'-column width.
+            for (int i = 10; i < columnWidth; i++) // add offset of column name, based on 'name'-column width.
             {
                 string.append(" ");
             }
             string.append(" PRIS");
         }
+        return string.toString();
+    }
+
+    // formats list of bookings, enforcing column width.
+    private String formatBookings(BookingList list, int columnWidth)
+    {
+        StringBuilder string = new StringBuilder();
+        LocalDateTime start = list.getFirst().startingTime.toLocalDate().atTime(10, 0); // set up iterator
 
         for (Booking booking : list) // add each booking to the schedule.
         {
-            // if substantial time free before booking, add the empty timespan to schedule.
+            // if substantial time free before booking, add the empty time-span to schedule.
             if (start.until(booking.startingTime, ChronoUnit.MINUTES) > 10)
             {
                 string.append("\n");
-                string.append(start.format(DateTimeFormatter.ofPattern("HH:mm")));
-                string.append("-");
-                string.append(booking.startingTime.format(DateTimeFormatter.ofPattern("HH:mm")));
+                string.append(formatTimeSpan(start, booking.startingTime));
             }
 
-            // add timespan for booking to schedule.
-            string.append("\n");
-            string.append(booking.startingTime.format(DateTimeFormatter.ofPattern("HH:mm")));
-            string.append("-");
-            string.append(booking.endTime.plusMinutes(1).format(DateTimeFormatter.ofPattern("HH:mm")));
-            string.append("  ");
+            // add booking formatted as single line.
+            string.append(formatBooking(booking, columnWidth));
 
-            // enforce column width by adding spaces after shorter names.
-            StringBuilder normalName = new StringBuilder(booking.customerName);
-            while (normalName.length() <= maxLength) normalName.append(" ");
-
-            string.append(normalName); // add costumer name after booking timespan.
-
-            if (HarrySalon.loggedIn) // if logged in, insert price for booking after timespan.
-            {
-                string.append(booking.receipt.getTotalPrice());
-                string.append(",-");
-            }
-
-            start = booking.endTime.plusMinutes(1); // iterate start of next timespan to just after currently handled booking.
+            start = booking.endTime.plusMinutes(1); // iterate start of next time-span to just after currently handled booking.
         }
 
-        // add final timespan to closing hour to schedule.
+        // add final time-span to closing hour to schedule.
         string.append("\n");
-        string.append(start.format(DateTimeFormatter.ofPattern("HH:mm")));
-        string.append("-");
-        string.append(date.atTime(18,0).format(DateTimeFormatter.ofPattern("HH:mm")));
+        string.append(formatTimeSpan(start, start.toLocalDate().atTime(18,0)));
 
         return string.toString();
     }
 
-    // returns formatted schedule for TODAY.
-    public String formatDay()
+    // formats single booking to single line for use in schedule.
+    private String formatBooking(Booking booking, int columnWidth)
     {
-        return formatDay(LocalDate.now());
+        StringBuilder string = new StringBuilder();
+
+        // add timespan for booking to schedule.
+        string.append("\n");
+        string.append(formatTimeSpan(booking.startingTime, booking.endTime));
+        string.append("  ");
+
+        // enforce column width by adding spaces after shorter names.
+        StringBuilder normalName = new StringBuilder(booking.customerName);
+        while (normalName.length() <= columnWidth) normalName.append(" ");
+
+        string.append(normalName); // add costumer name after booking timespan.
+
+        if (HarrySalon.loggedIn) // if logged in, insert price for booking after timespan.
+        {
+            string.append(booking.receipt.getTotalPrice());
+            string.append(",-");
+        }
+
+        return string.toString();
+    }
+
+    // formats string from two LocalDateTime as HH:mm-HH:mm.
+    private String formatTimeSpan(LocalDateTime startTime, LocalDateTime endTime)
+    {
+        StringBuilder string = new StringBuilder();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        string.append(startTime.format(formatter));
+        string.append("-");
+        string.append(endTime.plusMinutes(1).format(formatter));
+
+        return string.toString();
+    }
+
+    // returns string depending on whether date i s weekend or holiday.
+    private String getClosedLabel(LocalDate date)
+    {
+        return switch (date.getDayOfWeek())
+        {
+            case SATURDAY, SUNDAY -> "WEEKEND";
+            default -> "HELLIGDAG";
+        };
+    }
+
+    // returns length of longest costumer name from given bookings, or 8 as minimum.
+    private int getLongestNameLength(BookingList list)
+    {
+        // enforce least-length of 8.
+        int longestLength = 8;
+        for (Booking booking : list)
+        {
+            if (booking.customerName.length() > longestLength) longestLength = booking.customerName.length();
+        }
+        return longestLength;
     }
 
     // returns string explaining amount of bookings in list, amount planned and done.
@@ -586,7 +655,7 @@ public class BookingList extends ArrayList<Booking>
     {
         ArrayList<String> list = new ArrayList<>();
 
-        for (Booking booking : this) // create list of formatted crucial info for each booking.
+        for (Booking booking : this) // create list of formatted info for each booking.
         {
             list.add(booking.customerName + "\n" + booking.phoneNumber + "\n" + booking.startingTime.format(DateTimeFormatter.ofPattern(Booking.formatterString)));
         }
@@ -598,9 +667,8 @@ public class BookingList extends ArrayList<Booking>
         }
         catch (Exception e)
         {
-            return false; // return false if save unsuccessful.
+            return false; // return false if save was unsuccessful.
         }
-
         return true;
     }
 
@@ -608,7 +676,7 @@ public class BookingList extends ArrayList<Booking>
     // method is NOT called in constructor, as empty BookingLists are also utilized.
     public boolean loadFrom(String fileName)
     {
-        Scanner scanner = null;
+        Scanner scanner = null; // declare scanner outside 'try'-scope to let 'finally' see and close it.
         try // try to open file.
         {
             scanner = new Scanner(new File(fileName));
@@ -616,10 +684,11 @@ public class BookingList extends ArrayList<Booking>
 
             while (scanner.hasNextLine()) // file is structured as crucial info for each booking in order.
             {
-                this.add(new Booking(scanner.nextLine(), scanner.nextLine(), scanner.nextLine()));
+                // uses 'super.add' to surpass time-conflict-checks when loading from file.
+                super.add(new Booking(scanner.nextLine(), scanner.nextLine(), scanner.nextLine()));
             }
         }
-        catch (FileNotFoundException e) {return false;} // let this booking list be as it where, if no file saved.
+        catch (Exception e) {return false;} // let this booking list be as it where, if no file saved.
         finally // ensure scanner is closed, even if error is thrown by something else.
         {
             if (scanner != null) scanner.close();
@@ -628,8 +697,8 @@ public class BookingList extends ArrayList<Booking>
     }
 
 
-// NOTE: the following methods are redundant,
-// as there was no time to implement user-interface for managing vacations.
+// NOTE: the following methods are redundant, as there was no time
+// to implement a user-interface for managing vacations.
 
     // adds given date to vacation days, ensuring not to add duplicate dates or overlap Bookings.
     // returns false if attempted to add date with registered bookings.
