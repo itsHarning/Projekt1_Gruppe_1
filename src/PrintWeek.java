@@ -1,9 +1,7 @@
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class PrintWeek {
@@ -66,7 +64,7 @@ public class PrintWeek {
         ArrayList<String> days = new ArrayList<>();
        LocalDate date = startDate;
        while (!date.isAfter(endDate)){
-           days.add(HarrySalon.bookingList.printDay(date));
+           days.add(HarrySalon.bookingList.formatDay(date));
            date = date.plusDays(1);
        }
         System.out.println(startDate + ", " + endDate);

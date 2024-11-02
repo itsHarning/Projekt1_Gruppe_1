@@ -19,7 +19,7 @@ public class BookingReserver {
             if (time.equals("q")|| time.equals("0")) //adds the option to go back to menu
                 return;
             LocalDateTime wantTime = LocalDateTime.parse(time, Booking.formatter);
-            LocalDateTime suggestedTime = HarrySalon.bookingList.hasTimeAt(wantTime);
+            LocalDateTime suggestedTime = HarrySalon.bookingList.nextTimeOnDayFrom(wantTime);
 
             if (!suggestedTime.equals(wantTime)) // checks if time is not available
             {

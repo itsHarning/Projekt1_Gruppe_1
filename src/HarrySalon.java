@@ -37,7 +37,7 @@ public class HarrySalon {
 
         boolean run = true;
 
-        if (bookingList.isEmpty()) bookingList.loadFrom();
+        bookingList.loadFrom("BookingArchive.txt");
 
         while (run) {
             System.out.println();
@@ -55,7 +55,7 @@ public class HarrySalon {
             run = getInput();
         }
 
-        bookingList.saveTo();
+        bookingList.saveTo("BookingArchive.txt");
     }
     //this is just what it prints when the user writes something that isn't valid
     static void wrongInput(){
