@@ -534,12 +534,14 @@ public class BookingList extends ArrayList<Booking>
         string.append("\n    TID      KUNDENAVN");
         if (HarrySalon.loggedIn) // only add column name for cost if logged in, as they are not added unless so.
         {
-            for (int i = 10; i < columnWidth; i++) // add offset of column name, based on 'name'-column width.
+            // add offset of column name, based on 'name'-column width.
+            for (int i = 10; i <= columnWidth; i++)
             {
                 string.append(" ");
             }
-            string.append(" PRIS");
+            string.append("PRIS");
         }
+
         return string.toString();
     }
 
@@ -687,6 +689,7 @@ public class BookingList extends ArrayList<Booking>
                 // uses 'super.add' to surpass time-conflict-checks when loading from file.
                 super.add(new Booking(scanner.nextLine(), scanner.nextLine(), scanner.nextLine()));
             }
+            // this.sort(null); // sort list chronologically (it should be already but testing may mess with the order)
         }
         catch (Exception e) {return false;} // let this booking list be as it where, if no file saved.
         finally // ensure scanner is closed, even if error is thrown by something else.
